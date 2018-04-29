@@ -11,10 +11,6 @@ My goal is learn Rust while making a game and, after I archive and working MVP, 
 | Walk | W A S D |
 
 # Setup
-```bash
-cargo build
-cargo run
-```
 
 ## 1. Clone this repo:
 
