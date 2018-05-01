@@ -1,6 +1,7 @@
 extern crate ggez;
 
 mod actors;
+mod animations;
 mod controls;
 
 use ggez::conf;
