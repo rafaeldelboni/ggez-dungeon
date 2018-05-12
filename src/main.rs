@@ -8,12 +8,14 @@ use ggez::conf;
 use ggez::timer;
 use ggez::event;
 use ggez::graphics;
+use ggez::graphics::{Image};
 use ggez::{Context, GameResult};
 use actors::player::Player;
 
 // Main state
 struct MainState {
-    player: Player
+    player: Player,
+    assets: Image
 }
 
 impl MainState {
@@ -21,7 +23,8 @@ impl MainState {
         graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 
         let state = MainState {
-            player: Player::new(ctx)
+            player: Player::new(ctx),
+            assets: Image::new(ctx, "/warrior.png").unwrap()
         };
         Ok(state)
     }
@@ -42,7 +45,7 @@ impl event::EventHandler for MainState {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
 
-        self.player.draw(ctx)?;
+        self.player.draw(ctx, &self.assets)?;
 
         graphics::present(ctx);
         Ok(())
@@ -86,10 +89,19 @@ fn main() {
     println!("Starting with default config: {:#?}", c);
 
     let ctx = &mut Context::load_from_conf("TopDown", "ggez", c).unwrap();
-    let state = &mut MainState::new(ctx).unwrap();
-    if let Err(e) = event::run(ctx, state) {
-        println!("Oops. Error encountered: {}", e);
-    } else {
-        println!("Great. Game exited cleanly.");
+
+    match MainState::new(ctx) {
+        Err(e) => {
+            println!("Could not load game!");
+            println!("Error: {}", e);
+        }
+        Ok(ref mut game) => {
+            let result = event::run(ctx, game);
+            if let Err(e) = result {
+                println!("Error encountered running game: {}", e);
+            } else {
+                println!("Game exited cleanly.");
+            }
+        }
     }
 }
