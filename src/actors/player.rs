@@ -1,13 +1,14 @@
 use std::time;
 
-use ggez::timer;
 use ggez::{Context, GameResult};
 use ggez::graphics::{Rect, Image, Vector2, Point2, draw_ex};
 
+use actors::states::ActorStates;
 use animations::*;
 use controls::Controls;
 
 pub struct Player {
+    pub state: ActorStates,
     pub position: Point2,
     pub direction: Point2,
     pub velocity: Vector2,
@@ -17,13 +18,13 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(_context: &mut Context) -> Player {
+    pub fn new(_context: &mut Context) -> GameResult<Player> {
         let controls = Controls {
             direction: Vector2::new(0., 0.),
             attack: 0.
         };
         let animations: Animations = vec!(
-            ("idle",
+            (ActorStates::Idle,
              Animation::new(
                  10.,
                  Point2::new(0.5, 0.5),
@@ -41,7 +42,7 @@ impl Player {
                      )
                  )
             ),
-            ("walk",
+            (ActorStates::Walk,
              Animation::new(
                  10.,
                  Point2::new(0.5, 0.5),
@@ -62,15 +63,17 @@ impl Player {
             .into_iter()
             .collect();
 
-        Player {
+        Ok(Player {
+            state: ActorStates::Idle,
             position: Point2::new(100., 100.),
             direction: Point2::new(1., 1.),
             velocity: Vector2::new(20., 20.),
             scale: Point2::new(4.0, 4.0),
             controls: controls,
             animations: animations,
-        }
+        })
     }
+
 
     pub fn update(&mut self, delta_time: time::Duration) -> GameResult<()> {
         let delta = delta_time.subsec_nanos() as f32/1e8;
@@ -87,6 +90,12 @@ impl Player {
             self.direction.x = 1.;
         }
 
+        if velocity != Vector2::new(0., 0.) {
+            self.state = ActorStates::Walk;
+        } else {
+            self.state = ActorStates::Idle;
+        }
+
         self.position += velocity;
 
         Ok(())
@@ -94,8 +103,7 @@ impl Player {
 
     pub fn draw(&mut self, ctx: &mut Context, assets: &Image) -> GameResult<()> {
         let current = current_frame(
-            timer::get_fps(ctx),
-            "walk",
+            &self.state,
             &mut self.animations);
 
         let mut image_param = current;

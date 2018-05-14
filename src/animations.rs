@@ -2,6 +2,10 @@ use std::collections::HashMap;
 
 use ggez::graphics::{DrawParam, Point2, Rect};
 
+use actors::states::ActorStates;
+
+const TARGET_FPS: f64 = 60.;
+
 #[derive(Debug)]
 pub struct Animation {
     pub speed: f64,
@@ -31,16 +35,15 @@ impl Animation {
     }
 }
 
-pub type Animations = HashMap<&'static str, Animation>;
+pub type Animations = HashMap<ActorStates, Animation>;
 
 pub fn current_frame (
-    fps: f64,
-    state: &'static str,
+    state: &ActorStates,
     animations: &mut Animations)
 -> DrawParam {
     let animation = animations.get_mut(state).unwrap();
 
-    animation.frame = (animation.frame + (1. / fps) * animation.speed)
+    animation.frame = (animation.frame + (1. / TARGET_FPS) * animation.speed)
         % animation.draw_params.len() as f64;
 
     animation.draw_params[animation.frame as usize]
