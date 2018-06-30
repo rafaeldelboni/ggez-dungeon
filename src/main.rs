@@ -25,6 +25,5 @@ fn main() {
     graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 
     let mut state = Game::new(ctx).unwrap();
-    println!("aqui!!!!!!!");
     event::run(ctx, &mut state).unwrap();
 }
