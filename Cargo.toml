@@ -3,6 +3,9 @@ name = "ggez-dungeon"
 version = "0.1.0"
 authors = ["Rafael Delboni <rafadelboni@gmail.com>"]
 
+[workspace] 
 [dependencies]
+spritesheet = { path = "spritesheet" }
+
 ggez = { version = "0.4", features = ["cargo-resource-root"] }
 specs = "0.12"
