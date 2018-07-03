@@ -45,6 +45,12 @@ Run in debug mode:
 cargo run
 ```
 
+## Update Spritesheets:
+Be sure you're running this code at the root of the project directory!
+```
+  cargo run -p spritesheet
+```
+
 ## Credits
 Assets: https://opengameart.org/users/calciumtrice
 
