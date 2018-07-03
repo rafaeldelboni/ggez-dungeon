@@ -2,9 +2,6 @@ use std::collections::HashMap;
 
 use texture_packer;
 
-use serde_json;
-use serde_json::Error;
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Frame {
     x: u32,
@@ -37,11 +34,6 @@ pub fn to_atlas(frames: &HashMap<String, texture_packer::Frame>) -> Atlas {
     return Atlas { frames: frames_map };
 }
 
-pub fn to_json(atlas: Atlas) -> Result<(String), Error> {
-    let json = serde_json::to_string(&atlas)?;
-    Ok(json)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,16 +64,5 @@ mod tests {
         assert_eq!(converted.y, created.y);
         assert_eq!(converted.w, created.w);
         assert_eq!(converted.h, created.h);
-    }
-
-    #[test]
-    fn should_convert_to_json() {
-        let mut created_frames: HashMap<String, Frame> = HashMap::new();
-        created_frames.insert("test1".to_string(), Frame { x: 0, y: 0, w: 0, h: 0 });
-
-        let atlas = to_json(Atlas { frames: created_frames} ).unwrap();
-        let json = "{\"frames\":{\"test1\":{\"x\":0,\"y\":0,\"w\":0,\"h\":0}}}";
-
-        assert_eq!(atlas, json);
     }
 }
