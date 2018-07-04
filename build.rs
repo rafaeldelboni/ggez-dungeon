@@ -10,7 +10,7 @@ fn main() {
         border_padding: 4,
         input_folder: "assets/".to_string(),
         output_folder: "resources/".to_string(),
-        output_file_name: "atlas".to_string(),
+        output_file_name: "spritesheet".to_string(),
     };
     println!("Generating spritesheets: {:?}", config);
 

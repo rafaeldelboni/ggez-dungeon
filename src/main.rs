@@ -1,7 +1,12 @@
+extern crate serde;
+extern crate serde_json;
+
 extern crate ggez;
 extern crate specs;
+extern crate spritesheet_generator;
 
 mod game;
+mod assets;
 
 use ggez::event;
 use ggez::{Context, graphics};

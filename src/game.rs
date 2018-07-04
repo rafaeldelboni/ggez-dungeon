@@ -7,6 +7,8 @@ use ggez::event::{Keycode};
 use ggez::{Context, GameResult};
 use specs::{World, Dispatcher, DispatcherBuilder};
 
+use assets::Assets;
+
 #[derive(Clone)]
 pub struct DeltaTime {
     pub delta: time::Duration,
@@ -43,11 +45,12 @@ pub struct Game<'a, 'b> {
 }
 
 impl<'a, 'b> Game<'a, 'b> {
-    pub fn new(_ctx: &mut Context) -> GameResult<Game<'a, 'b>> {
+    pub fn new(ctx: &mut Context) -> GameResult<Game<'a, 'b>> {
         let mut world = World::new();
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .build();
 
+        world.add_resource(Assets::new(ctx)?);
         world.add_resource(DeltaTime { delta: time::Duration::new(0, 0) });
         world.add_resource(PlayerInput::new());
 
