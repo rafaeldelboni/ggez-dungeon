@@ -2,6 +2,7 @@ use std::time;
 
 use ggez::timer;
 use ggez::graphics;
+use ggez::graphics::{draw_ex, DrawParam, Point2, Rect};
 use ggez::event;
 use ggez::event::{Keycode};
 use ggez::{Context, GameResult};
@@ -64,7 +65,8 @@ impl<'a, 'b> Game<'a, 'b> {
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         if timer::get_ticks(ctx) % 100 == 0 {
-            println!("FPS: {}", timer::get_fps(ctx));
+            //println!("Delta frame time: {:?} ", timer::get_delta(ctx));
+            //println!("Average FPS: {}", timer::get_fps(ctx));
         }
 
         self.world.write_resource::<DeltaTime>().delta = timer::get_delta(ctx);
@@ -75,8 +77,23 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         Ok(())
     }
 
+
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx);
+        let assets = self.world.read_resource::<Assets>();
+        let spritesheet = &assets.spritesheet_data;
+        let frame = spritesheet.frames.get("warrior_die_08").unwrap().screen.clone();
+
+        let image_param = DrawParam {
+            src: Rect::new(frame.x, frame.y, frame.w, frame.h),
+            dest: Point2::new(100., 100.),
+            offset: Point2::new(0.5, 0.5),
+            scale: Point2::new(4.0, 4.0),
+            shear: Point2::new(1./1e4, 1./1e4),
+            ..Default::default()
+        };
+        draw_ex(ctx, &assets.spritesheet_image, image_param).unwrap();
+
         graphics::present(ctx);
 
         Ok(())

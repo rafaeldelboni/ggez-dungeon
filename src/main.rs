@@ -26,6 +26,7 @@ fn main() {
         window_mode,
         ..Default::default()
     };
+
     let ctx = &mut Context::load_from_conf("config", "me", c).unwrap();
     graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 

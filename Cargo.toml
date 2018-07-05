@@ -5,12 +5,12 @@ authors = ["Rafael Delboni <rafadelboni@gmail.com>"]
 build = "build.rs"
 
 [build-dependencies]
-spritesheet-generator = "0.2.0"
+spritesheet-generator = "0.3.3"
 
 [dependencies]
 ggez = { version = "0.4", features = ["cargo-resource-root"] }
 specs = "0.12"
-spritesheet-generator = "0.2.0"
+spritesheet-generator = "0.3.3"
 serde = "1.0.68"
 serde_derive = "1.0.68"
 serde_json = "1.0.22"
