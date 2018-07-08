@@ -2,6 +2,7 @@ use serde_json;
 
 use ggez::graphics::{Image};
 use ggez::{Context, GameResult};
+
 use spritesheet_generator::spritesheet::Spritesheet;
 
 pub struct Assets {

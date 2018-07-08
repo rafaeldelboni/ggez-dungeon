@@ -7,6 +7,7 @@ extern crate spritesheet_generator;
 
 mod game;
 mod assets;
+mod rendering;
 
 use ggez::event;
 use ggez::{Context, graphics};
@@ -19,7 +20,7 @@ fn main() {
         width: 800,
         height: 600,
         borderless: true,
-        vsync: false,
+        vsync: true,
         ..Default::default()
     };
     let c = Conf {
