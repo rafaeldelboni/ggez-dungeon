@@ -6,7 +6,9 @@ extern crate specs;
 extern crate spritesheet_generator;
 
 mod game;
+mod input;
 mod assets;
+mod position;
 mod rendering;
 
 use ggez::event;
