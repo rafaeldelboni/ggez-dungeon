@@ -27,6 +27,23 @@ fn generate_draw_param (frame: Screen, position: Position) -> DrawParam {
     }
 }
 
+fn draw_image(
+    context: &mut Context,
+    spritesheet: &Write<Assets>, 
+    position: &Position, 
+    id: String
+) {
+    if let Some(image) = &spritesheet.spritesheet_data.frames.get(&id) {
+        let frame = image.screen.clone();
+
+        draw_ex(
+            context,
+            &spritesheet.spritesheet_image,
+            generate_draw_param(frame, *position)
+        ).unwrap();
+    }
+}
+
 pub struct RenderingSystem<'c> {
     ctx: &'c mut Context,
 }
@@ -61,26 +78,10 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                     };
 
                     let id = format!("{}_{:02}", id, frame as usize);
-                    if let Some(image) = &spritesheet.spritesheet_data.frames.get(&id) {
-                        let frame = image.screen.clone();
-
-                        draw_ex(
-                            self.ctx,
-                            &spritesheet.spritesheet_image,
-                            generate_draw_param(frame, *position)
-                        ).unwrap();
-                    }
+                    draw_image(self.ctx, &spritesheet, position, id);
                 },
                 RenderableClass::Image { id } => {
-                    if let Some(image) = &spritesheet.spritesheet_data.frames.get(id) {
-                        let frame = image.screen.clone();
-
-                        draw_ex(
-                            self.ctx,
-                            &spritesheet.spritesheet_image,
-                            generate_draw_param(frame, *position)
-                        ).unwrap();
-                    }
+                    draw_image(self.ctx, &spritesheet, position, String::from(id));
                 },
             }
         }
