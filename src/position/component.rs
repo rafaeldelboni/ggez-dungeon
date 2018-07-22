@@ -19,10 +19,3 @@ pub struct Velocity {
 impl Component for Velocity {
     type Storage = VecStorage<Self>;
 }
-
-#[derive(Debug)]
-pub struct Controlable;
-
-impl Component for Controlable {
-    type Storage = VecStorage<Self>;
-}

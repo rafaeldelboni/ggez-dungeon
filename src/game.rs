@@ -5,12 +5,13 @@ use ggez::event::{Keycode};
 use ggez::{Context, GameResult};
 use specs::{Builder, Dispatcher, DispatcherBuilder, RunNow, World};
 
-use input::Input;
 use assets::Assets;
+use input::{ControlableSystem, Controlable, Input};
 use position::{PositionSystem, Position, Velocity};
 use rendering::{RenderingSystem, Renderable, RenderableClass};
 
 pub fn register_components(world: &mut World) {
+    world.register::<Controlable>();
     world.register::<Position>();
     world.register::<Velocity>();
     world.register::<Renderable>();
@@ -28,6 +29,7 @@ impl<'a, 'b> Game<'a, 'b> {
         register_components(&mut world);
 
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
+            .with(ControlableSystem, "controlable", &[])
             .with(PositionSystem, "position", &[])
             .build();
 
@@ -36,6 +38,7 @@ impl<'a, 'b> Game<'a, 'b> {
 
         world
             .create_entity()
+            .with(Controlable)
             .with(Position { x: 100., y: 100. })
             .with(Velocity { x: 0., y: 0. })
             .with(Renderable {
