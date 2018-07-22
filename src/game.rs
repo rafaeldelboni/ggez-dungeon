@@ -1,5 +1,3 @@
-use std::time;
-
 use ggez::timer;
 use ggez::graphics;
 use ggez::event;
@@ -9,16 +7,12 @@ use specs::{Builder, Dispatcher, DispatcherBuilder, RunNow, World};
 
 use input::Input;
 use assets::Assets;
-use position::Position;
+use position::{PositionSystem, Position, Velocity};
 use rendering::{RenderingSystem, Renderable, RenderableClass};
-
-#[derive(Clone)]
-pub struct DeltaTime {
-    pub delta: time::Duration,
-}
 
 pub fn register_components(world: &mut World) {
     world.register::<Position>();
+    world.register::<Velocity>();
     world.register::<Renderable>();
 }
 
@@ -30,17 +24,20 @@ pub struct Game<'a, 'b> {
 impl<'a, 'b> Game<'a, 'b> {
     pub fn new(ctx: &mut Context) -> GameResult<Game<'a, 'b>> {
         let mut world = World::new();
-        let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new().build();
 
         register_components(&mut world);
 
-        world.add_resource(DeltaTime { delta: time::Duration::new(0, 0) });
+        let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
+            .with(PositionSystem, "position", &[])
+            .build();
+
         world.add_resource(Assets::new(ctx)?);
         world.add_resource(Input::new());
 
         world
             .create_entity()
             .with(Position { x: 100., y: 100. })
+            .with(Velocity { x: 0., y: 0. })
             .with(Renderable {
                 layer: 0,
                 class: RenderableClass::Animation {
@@ -65,8 +62,6 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
             println!("Delta frame time: {:?} ", timer::get_delta(ctx));
             println!("Average FPS: {}", timer::get_fps(ctx));
         }
-
-        self.world.write_resource::<DeltaTime>().delta = timer::get_delta(ctx);
 
         self.dispatcher.dispatch(&mut self.world.res);
         self.world.maintain();
