@@ -1,4 +1,4 @@
-use specs::{Component, VecStorage};
+use specs::{Component, NullStorage};
 
 #[derive(Clone)]
 pub struct Input {
@@ -23,16 +23,6 @@ impl Input {
             attack: false,
         }
     }
-
-    pub fn reset(&mut self) {
-        self.up = false;
-        self.down = false;
-        self.left = false;
-        self.right = false;
-        self.slide = false;
-        self.jump = false;
-        self.attack = false;
-    }
 }
 
 impl Default for Input {
@@ -49,9 +39,9 @@ impl Default for Input {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Controlable;
 
 impl Component for Controlable {
-    type Storage = VecStorage<Self>;
+    type Storage = NullStorage<Self>;
 }

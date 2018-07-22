@@ -6,11 +6,14 @@ use ggez::{Context, GameResult};
 use specs::{Builder, Dispatcher, DispatcherBuilder, RunNow, World};
 
 use assets::Assets;
+use camera::{Camera, ChaseCamera, SnapCamera, ChaseCameraSystem, SnapCameraSystem};
 use input::{ControlableSystem, Controlable, Input};
 use position::{PositionSystem, Position, Velocity};
 use rendering::{RenderingSystem, Renderable, RenderableClass};
 
 pub fn register_components(world: &mut World) {
+    world.register::<SnapCamera>();
+    world.register::<ChaseCamera>();
     world.register::<Controlable>();
     world.register::<Position>();
     world.register::<Velocity>();
@@ -31,10 +34,28 @@ impl<'a, 'b> Game<'a, 'b> {
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .with(ControlableSystem, "controlable", &[])
             .with(PositionSystem, "position", &[])
+            .with(ChaseCameraSystem, "chase_camera", &["position"])
+            .with(SnapCameraSystem, "snap_camera", &["position"])
             .build();
 
         world.add_resource(Assets::new(ctx)?);
         world.add_resource(Input::new());
+
+        let (w, h) = (ctx.conf.window_mode.width, ctx.conf.window_mode.height);
+        let hc = h as f32 / w as f32;
+        let fov = w as f32 * 1.5;
+        world.add_resource(Camera::new(w, h, fov, hc * fov));
+
+        world
+            .create_entity()
+            .with(Position { x: 400., y: 400. })
+            .with(Renderable {
+                layer: 0,
+                class: RenderableClass::Image {
+                    id: "warrior_attack_01"
+                }
+            })
+            .build();
 
         world
             .create_entity()

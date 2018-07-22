@@ -8,8 +8,8 @@ impl<'a> System<'a> for PositionSystem {
 
     fn run(&mut self, (vel, mut pos): Self::SystemData) {
         (&vel, &mut pos).join().for_each(|(vel, pos)| {
-            pos.x += vel.x * 0.05;
-            pos.y += vel.y * 0.05;
+            pos.x += vel.x * 0.1;
+            pos.y += vel.y * 0.1;
         });
     }
 }
