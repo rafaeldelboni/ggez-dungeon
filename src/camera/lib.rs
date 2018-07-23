@@ -118,7 +118,7 @@ impl Camera {
 
 pub trait CameraDraw
 where
-    Self: graphics::Drawable, {
+    Self: ggez::graphics::Drawable, {
     fn draw_ex_camera(
         &self,
         camera: &Camera,
@@ -160,7 +160,7 @@ where
 
 impl<T> CameraDraw for T
 where
-    T: graphics::Drawable,
+    T: ggez::graphics::Drawable,
 {
 }
 

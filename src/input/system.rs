@@ -9,15 +9,19 @@ impl<'a> System<'a> for ControlableSystem {
 
     fn run(&mut self, (input, mut vel): Self::SystemData) {
         (&mut vel).join().for_each(|vel| {
-            match *input {
-                Input { left, .. } if left == true => vel.x = -10.,
-                Input { right, .. } if right == true => vel.x = 10.,
-                Input { up, .. } if up == true => vel.y = -10.,
-                Input { down, .. } if down == true => vel.y = 10.,
-                _ => { 
-                    vel.x = 0.;
-                    vel.y = 0.;
-                },
+            if input.left {
+                vel.x = -10.;
+            } else if input.right {
+                vel.x = 10.;
+            } else {
+                vel.x = 0.;
+            }
+            if input.up {
+                vel.y = 10.;
+            } else if input.down {
+                vel.y = -10.;
+            } else {
+                vel.y = 0.;
             }
         });
     }

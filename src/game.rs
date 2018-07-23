@@ -41,14 +41,18 @@ impl<'a, 'b> Game<'a, 'b> {
         world.add_resource(Assets::new(ctx)?);
         world.add_resource(Input::new());
 
-        let (w, h) = (ctx.conf.window_mode.width, ctx.conf.window_mode.height);
-        let hc = h as f32 / w as f32;
-        let fov = w as f32 * 1.5;
-        world.add_resource(Camera::new(w, h, fov, hc * fov));
+        world.add_resource(
+            Camera::new(
+                ctx.conf.window_mode.width,
+                ctx.conf.window_mode.height,
+                ctx.conf.window_mode.width as f32 / 4.,
+                ctx.conf.window_mode.height as f32  / 4.
+            )
+        );
 
         world
             .create_entity()
-            .with(Position { x: 400., y: 400. })
+            .with(Position { x: 200., y: 200. })
             .with(Renderable {
                 layer: 0,
                 class: RenderableClass::Image {
@@ -60,6 +64,7 @@ impl<'a, 'b> Game<'a, 'b> {
         world
             .create_entity()
             .with(Controlable)
+            .with(SnapCamera)
             .with(Position { x: 100., y: 100. })
             .with(Velocity { x: 0., y: 0. })
             .with(Renderable {
