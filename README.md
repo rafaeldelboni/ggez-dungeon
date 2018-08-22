@@ -4,6 +4,23 @@
 
 My goal is learn Rust while making a game and, after I archive and working MVP, I will try to refactor the all the code in a Functional way.
 
+### Todos
+
+ - New AABB "Body" Component
+   - Struct (Center, Size, Halfsize, Scale)
+   - Register Component
+   - Add to Entity
+     - https://github.com/dpogretskiy/specs-ggez-showcase/blob/master/src/physics/aabb.rs
+ - Colision Detection Method 
+     - Impl : pub fn overlaps(&self, other: &AABB) -> bool
+       - https://studiofreya.com/3d-math-and-physics/simple-aabb-vs-aabb-collision-detection/
+       - https://tutorialedge.net/gamedev/aabb-collision-detection-tutorial/
+ - Replace Position system with Physics System
+     - Create new movement system
+     - Push handling
+     - Squish
+       - https://mattmakesgames.tumblr.com/post/127890619821/towerfall-physics
+
 ### Controls
 
 | Action | Command |
