@@ -20,6 +20,7 @@ My goal is learn Rust while making a game and, after I archive and working MVP, 
      - Push handling
      - Squish
        - https://mattmakesgames.tumblr.com/post/127890619821/towerfall-physics
+       - https://gamedevelopment.tutsplus.com/tutorials/basic-2d-platformer-physics-part-1--cms-25799
 
 ### Controls
 
