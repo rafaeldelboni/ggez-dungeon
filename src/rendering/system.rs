@@ -1,13 +1,11 @@
-use ggez::graphics::{draw_ex, DrawParam, Rect, Point2, Vector2};
-use ggez::{Context};
-
+use ggez::graphics::{draw_ex, Drawable, DrawMode, DrawParam, Mesh, Point2, Rect};
+use ggez::{Context, GameResult};
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
-
 use spritesheet_generator::spritesheet::Screen;
 
 use assets::Assets;
 use camera::Camera;
-use position::Position;
+use physics::{EcsRigidBody, Position, PhysicWorld, ShapeCube};
 use rendering::{Renderable, RenderableClass};
 
 const TARGET_FPS: f32 = 60.;
@@ -19,7 +17,7 @@ fn generate_draw_param (
 ) -> DrawParam {
 
     let cam_dest = camera.calculate_dest_point(
-        Vector2::new(position.x, position.y)
+        Point2::new(position.x, position.y)
     );
     let cam_scale = camera.draw_scale();
 
@@ -47,12 +45,11 @@ fn draw_image(
 ) {
     if let Some(frame_data) = &spritesheet.spritesheet_data.frames.get(&id) {
         let frame = frame_data.screen.clone();
-
         draw_ex(
             context,
             &spritesheet.spritesheet_image,
             generate_draw_param(&camera, frame, *position)
-        ).unwrap();
+        ).expect("Unable do render image.");
     }
 }
 
@@ -98,5 +95,70 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                 },
             }
         }
+    }
+}
+
+pub struct DebugRenderingSystem<'c> {
+    ctx: &'c mut Context,
+}
+
+impl<'c> DebugRenderingSystem<'c> {
+    pub fn new(ctx: &'c mut Context) -> DebugRenderingSystem<'c> {
+        DebugRenderingSystem { ctx }
+    }
+
+    pub fn render(&mut self, points: &[Point2], cam_scale: Point2) -> GameResult<()> {
+        let mesh = Mesh::new_polygon(
+            self.ctx,
+            DrawMode::Line(0.1),
+            points
+        ).expect("Error creating polygon.");
+
+        mesh.draw_ex(
+            self.ctx,
+            DrawParam {
+                dest: Point2::origin(),
+                rotation: 0.0,
+                scale: cam_scale,
+                offset: Point2::new(0.5, 0.5),
+                ..Default::default()
+            },
+        )
+    }
+}
+
+impl<'a, 'c> System<'a> for DebugRenderingSystem<'c> {
+    type SystemData = (
+        Read<'a, Camera>,
+        ReadStorage<'a, EcsRigidBody>,
+        ReadStorage<'a, ShapeCube>,
+        Read<'a, PhysicWorld>,
+    );
+
+    fn run(&mut self, (camera, bodies, cube, world): Self::SystemData) {
+        (&bodies, &cube).join().for_each(|(body, cube)| {
+            let rbody = body.get(&world);
+
+            let rect_x = rbody.position().translation.vector.x;
+            let rect_y = rbody.position().translation.vector.y;
+            let rect_w = cube.0.half_extents().x;
+            let rect_h = cube.0.half_extents().y;
+
+            let x1 = rect_x - rect_w;
+            let x2 = rect_x + rect_w;
+            let y1 = rect_y - rect_h;
+            let y2 = rect_y + rect_h;
+
+            let points = [
+                camera.calculate_dest_point(Point2::new(x1, y1)),
+                camera.calculate_dest_point(Point2::new(x2, y1)),
+                camera.calculate_dest_point(Point2::new(x2, y2)),
+                camera.calculate_dest_point(Point2::new(x1, y2)),
+            ];
+
+            let cam_scale = camera.draw_scale();
+
+            self.render(&points, cam_scale).expect("Error drawing cube bounds.")
+        });
     }
 }

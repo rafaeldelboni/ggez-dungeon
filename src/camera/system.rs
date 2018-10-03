@@ -1,8 +1,8 @@
-use ggez::graphics::{Vector2};
+use ggez::graphics::{Point2};
 use specs::{Join, Read, System, ReadStorage, Write, WriteStorage};
 
 use camera::{Camera, ChaseCamera, SnapCamera};
-use position::{Position};
+use physics::{Position};
 
 pub struct SnapCameraSystem ;
 
@@ -17,7 +17,7 @@ impl<'a> System<'a> for SnapCameraSystem {
         let (mut camera, position, snap) = data;
 
         for (pos, _) in (&position, &snap).join() {
-            camera.move_to(Vector2::new(pos.x as f32, pos.y as f32));
+            camera.move_to(Point2::new(pos.x as f32, pos.y as f32));
         }
     }
 }

@@ -1,7 +1,11 @@
+extern crate ggez;
+extern crate ggez_goodies;
+extern crate hibitset;
+extern crate nalgebra;
+extern crate ncollide2d;
+extern crate nphysics2d;
 extern crate serde;
 extern crate serde_json;
-
-extern crate ggez;
 extern crate specs;
 extern crate spritesheet_generator;
 
@@ -9,7 +13,7 @@ mod game;
 mod input;
 mod camera;
 mod assets;
-mod position;
+mod physics;
 mod rendering;
 
 use ggez::event;

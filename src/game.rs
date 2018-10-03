@@ -1,15 +1,18 @@
 use ggez::timer;
 use ggez::graphics;
-use ggez::event;
-use ggez::event::{Keycode};
+use ggez::event; use ggez::event::{Keycode};
 use ggez::{Context, GameResult};
+use nalgebra::{Vector2};
+use nphysics2d::math::Vector;
 use specs::{Builder, Dispatcher, DispatcherBuilder, RunNow, World};
 
 use assets::Assets;
 use camera::{Camera, ChaseCamera, SnapCamera, ChaseCameraSystem, SnapCameraSystem};
 use input::{ControlableSystem, Controlable, Input};
-use position::{PositionSystem, Position, Velocity};
-use rendering::{RenderingSystem, Renderable, RenderableClass};
+use physics::{MoveSystem, PhysicSystem, EcsRigidBody, Position, ShapeCube, Velocity};
+use physics::retained_storage::{Retained};
+use physics::resources::{BodiesMap, PhysicWorld, UpdateTime};
+use rendering::{DebugRenderingSystem, RenderingSystem, Renderable, RenderableClass};
 
 pub fn register_components(world: &mut World) {
     world.register::<SnapCamera>();
@@ -17,6 +20,8 @@ pub fn register_components(world: &mut World) {
     world.register::<Controlable>();
     world.register::<Position>();
     world.register::<Velocity>();
+    world.register::<ShapeCube>();
+    world.register::<EcsRigidBody>();
     world.register::<Renderable>();
 }
 
@@ -33,10 +38,17 @@ impl<'a, 'b> Game<'a, 'b> {
 
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .with(ControlableSystem, "controlable", &[])
-            .with(PositionSystem, "position", &[])
-            .with(ChaseCameraSystem, "chase_camera", &["position"])
-            .with(SnapCameraSystem, "snap_camera", &["position"])
+            .with(PhysicSystem, "physic_system", &[])
+            .with(MoveSystem, "move", &[])
+            .with(ChaseCameraSystem, "chase_camera", &["move"])
+            .with(SnapCameraSystem, "snap_camera", &["move"])
             .build();
+
+        let mut physic_world = PhysicWorld::new();
+        physic_world.set_gravity(Vector::new(0.0, 0.0));
+        world.add_resource(physic_world);
+        world.add_resource(BodiesMap::new());
+        world.add_resource(UpdateTime(0.0));
 
         world.add_resource(Assets::new(ctx)?);
         world.add_resource(Input::new());
@@ -45,8 +57,8 @@ impl<'a, 'b> Game<'a, 'b> {
             Camera::new(
                 ctx.conf.window_mode.width,
                 ctx.conf.window_mode.height,
-                ctx.conf.window_mode.width as f32 / 4.,
-                ctx.conf.window_mode.height as f32  / 4.
+                ctx.conf.window_mode.width as f32 / 3.,
+                ctx.conf.window_mode.height as f32  / 3.
             )
         );
 
@@ -66,7 +78,7 @@ impl<'a, 'b> Game<'a, 'b> {
             .with(Controlable)
             .with(SnapCamera)
             .with(Position { x: 100., y: 100. })
-            .with(Velocity { x: 0., y: 0. })
+            .with(Velocity { vector: Vector2::new(0., 0.) })
             .with(Renderable {
                 layer: 0,
                 class: RenderableClass::Animation {
@@ -92,8 +104,28 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
             println!("Average FPS: {}", timer::get_fps(ctx));
         }
 
+        let dt = timer::get_delta(ctx);
+        let seconds = dt.subsec_nanos() as f32 / 1_000_000_000.0;
+        self.world.write_resource::<UpdateTime>().0 = seconds;
+
         self.dispatcher.dispatch(&mut self.world.res);
         self.world.maintain();
+
+        let mut physic_world = self.world.write_resource::<PhysicWorld>();
+        let mut bodies_map = self.world.write_resource::<BodiesMap>();
+
+        let retained = self.world
+            .write_storage::<EcsRigidBody>()
+            .retained()
+            .iter()
+            .map(|r| r.handle())
+            .collect::<Vec<_>>();
+
+        physic_world.remove_bodies(&retained);
+
+        for handle in &retained {
+            bodies_map.remove(handle);
+        }
 
         Ok(())
     }
@@ -104,6 +136,10 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         {
             let mut rs = RenderingSystem::new(ctx);
             rs.run_now(&mut self.world.res);
+        }
+        {
+            let mut ds = DebugRenderingSystem::new(ctx);
+            ds.run_now(&mut self.world.res);
         }
         graphics::present(ctx);
         Ok(())

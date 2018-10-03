@@ -19,14 +19,14 @@
 use ggez;
 use ggez::GameResult;
 use ggez::graphics;
-use ggez::graphics::{DrawParam, Vector2};
+use ggez::graphics::{Point2, Vector2};
 
 // Hmm.  Could, instead, use a 2d transformation
 // matrix, or create one of such.
 pub struct Camera {
     screen_size: Vector2,
     view_size: Vector2,
-    view_center: Vector2,
+    view_center: Point2,
 }
 
 impl Default for Camera {
@@ -34,11 +34,12 @@ impl Default for Camera {
         Camera {
             screen_size: Vector2::new(0., 0.),
             view_size: Vector2::new(0., 0.),
-            view_center: Vector2::new(0., 0.)
+            view_center: Point2::new(0., 0.)
         }
     }
 }
 
+#[allow(unused)]
 impl Camera {
     pub fn new(screen_width: u32, screen_height: u32, view_width: f32, view_height: f32) -> Self {
         let screen_size = Vector2::new(screen_width as f32, screen_height as f32);
@@ -46,16 +47,8 @@ impl Camera {
         Camera {
             screen_size: screen_size,
             view_size: view_size,
-            view_center: Vector2::new(0., 0.),
+            view_center: Point2::new(0.0, 0.0),
         }
-    }
-
-    pub fn move_by(&mut self, by: Vector2) {
-        self.view_center += by;
-    }
-
-    pub fn move_to(&mut self, to: Vector2) {
-        self.view_center = to;
     }
 
     pub fn draw_scale(&self) -> graphics::Point2 {
@@ -65,29 +58,35 @@ impl Camera {
         )
     }
 
+    pub fn move_by(&mut self, by: Vector2) {
+        self.view_center += by;
+    }
+
+    pub fn move_to(&mut self, to: Point2) {
+        self.view_center = to;
+    }
+
     /// Translates a point in world-space to a point in
     /// screen-space.
     ///
     /// Does not do any clipping or anything, since it does
     /// not know how large the thing that might be drawn is;
     /// that's not its job.
-    pub fn world_to_screen_coords(&self, from: Vector2) -> (i32, i32) {
+    pub fn world_to_screen_coords(&self, from: Point2) -> (i32, i32) {
         let pixels_per_unit = self.screen_size.component_div(&self.view_size);
         let view_offset = from - self.view_center;
         let view_scale = view_offset.component_mul(&pixels_per_unit);
-
 
         let x = (*view_scale).x + (*self.screen_size).x / 2.0;
         let y = (*self.screen_size).y - ((*view_scale).y + (*self.screen_size).y / 2.0);
         (x as i32, y as i32)
     }
 
-
     // p_screen = max_p - p + max_p/2
     // p_screen - max_p/2 = max_p - p
     // p_screen - max_p/2 + max_p = -p
     // -p_screen - max_p/2 + max_p = p
-    pub fn screen_to_world_coords(&self, from: (i32, i32)) -> Vector2 {
+    pub fn screen_to_world_coords(&self, from: (i32, i32)) -> Point2 {
         let (sx, sy) = from;
         let sx = sx as f32;
         let sy = sy as f32;
@@ -99,18 +98,13 @@ impl Camera {
         let view_offset = self.view_center + view_scale;
 
         view_offset
-
     }
 
-    pub fn location(&self) -> Vector2 {
+    pub fn location(&self) -> Point2 {
         self.view_center
     }
 
-    pub fn size(&self) -> Vector2 {
-        self.view_size
-    }
-
-    pub fn calculate_dest_point(&self, location: Vector2) -> graphics::Point2 {
+    pub fn calculate_dest_point(&self, location: Point2) -> graphics::Point2 {
         let (sx, sy) = self.world_to_screen_coords(location);
         graphics::Point2::new(sx as f32, sy as f32)
     }
@@ -118,20 +112,17 @@ impl Camera {
 
 pub trait CameraDraw
 where
-    Self: ggez::graphics::Drawable, {
+    Self: graphics::Drawable,
+{
     fn draw_ex_camera(
         &self,
         camera: &Camera,
         ctx: &mut ggez::Context,
         p: ggez::graphics::DrawParam,
     ) -> GameResult<()> {
-        let dest = Vector2::new(p.dest.x as f32, p.dest.y as f32);
-        let dest = camera.calculate_dest_point(dest);
-        let scale = camera.draw_scale();
-        let orig_scale = p.scale.clone();
+        let dest = camera.calculate_dest_point(p.dest);
         let mut my_p = p;
         my_p.dest = dest;
-        my_p.scale = graphics::Point2::new(orig_scale.x * scale.x, orig_scale.y * scale.y);
         self.draw_ex(ctx, my_p)
     }
 
@@ -142,32 +133,21 @@ where
         dest: ggez::graphics::Point2,
         rotation: f32,
     ) -> GameResult<()> {
-        let dest = Vector2::new(dest.x as f32, dest.y as f32);
         let dest = camera.calculate_dest_point(dest);
-        let scale = camera.draw_scale();
-        self.draw_ex(
-            ctx,
-            DrawParam {
-                dest,
-                scale,
-                rotation,
-                ..Default::default()
-            },
-        )
+        self.draw(ctx, dest, rotation)
     }
 }
 
-
 impl<T> CameraDraw for T
 where
-    T: ggez::graphics::Drawable,
+    T: graphics::Drawable,
 {
 }
 
 #[cfg(test)]
 mod tests {
+    use ggez::graphics::{Point2, Vector2};
     use super::*;
-    use Vector2;
 
     #[test]
     fn test_coord_round_trip() {
@@ -175,13 +155,12 @@ mod tests {
         let p1 = (200, 300);
         {
             let p1_world = c.screen_to_world_coords(p1);
-            assert_eq!(p1_world, Vector2::new(-7.5, -3.75));
+            assert_eq!(p1_world, Point2::new(-7.5, -3.75));
             let p1_screen = c.world_to_screen_coords(p1_world);
             assert_eq!(p1, p1_screen);
         }
 
-
-        let p2 = Vector2::new(20.0, 10.0);
+        let p2 = Point2::new(20.0, 10.0);
         {
             let p2_screen = c.world_to_screen_coords(p2);
             assert_eq!(p2_screen, (640, 80));
@@ -189,11 +168,11 @@ mod tests {
             assert_eq!(p2_world, p2);
         }
 
-        c.move_to(Vector2::new(5.0, 5.0));
+        c.move_to(Point2::new(5.0, 5.0));
 
         {
             let p1_world = c.screen_to_world_coords(p1);
-            assert_eq!(p1_world, Vector2::new(-2.5, 1.25));
+            assert_eq!(p1_world, Point2::new(-2.5, 1.25));
             let p1_screen = c.world_to_screen_coords(p1_world);
             assert_eq!(p1, p1_screen);
         }
