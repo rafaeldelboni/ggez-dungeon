@@ -1,7 +1,7 @@
 use nphysics2d::algebra::{Velocity2};
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 
-use physics::component::{EcsRigidBody, Velocity};
+use physics::component::{EcsRigidBody, Position, Velocity};
 use physics::resources::{UpdateTime, PhysicWorld};
 
 pub struct MoveSystem;
@@ -9,12 +9,13 @@ pub struct MoveSystem;
 impl<'a> System<'a> for MoveSystem {
     type SystemData = (
         ReadStorage<'a, Velocity>,
+        WriteStorage<'a, Position>,
         WriteStorage<'a, EcsRigidBody>,
         Write<'a, PhysicWorld>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (vel, mut body, mut phy_world) = data;
+        let (vel, mut pos, mut body, mut phy_world) = data;
         (&vel, &mut body).join().for_each(|(vel, body)| {
             let b = body.get_mut(&mut phy_world);
             if vel.vector.x != 0.0 && vel.vector.y != 0.0 {
@@ -23,6 +24,11 @@ impl<'a> System<'a> for MoveSystem {
             } else {
                 b.set_velocity(Velocity2::linear(vel.vector.x, vel.vector.y));
             }
+        });
+        (&mut pos, &body).join().for_each(|(pos, body)| {
+            let b = body.get_mut(&mut phy_world);
+            pos.x = b.position().translation.vector.x;
+            pos.y = b.position().translation.vector.y;
         });
     }
 }

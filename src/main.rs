@@ -11,8 +11,10 @@ extern crate spritesheet_generator;
 
 mod game;
 mod input;
+mod enemy;
 mod camera;
 mod assets;
+mod player;
 mod physics;
 mod rendering;
 

@@ -20,6 +20,7 @@ fn generate_draw_param (
         Point2::new(position.x, position.y)
     );
     let cam_scale = camera.draw_scale();
+    println!("render{:?}", cam_dest);
 
     DrawParam {
         src: Rect {
@@ -110,7 +111,7 @@ impl<'c> DebugRenderingSystem<'c> {
     pub fn render(&mut self, points: &[Point2], cam_scale: Point2) -> GameResult<()> {
         let mesh = Mesh::new_polygon(
             self.ctx,
-            DrawMode::Line(0.1),
+            DrawMode::Line(1.),
             points
         ).expect("Error creating polygon.");
 
@@ -138,11 +139,18 @@ impl<'a, 'c> System<'a> for DebugRenderingSystem<'c> {
     fn run(&mut self, (camera, bodies, cube, world): Self::SystemData) {
         (&bodies, &cube).join().for_each(|(body, cube)| {
             let rbody = body.get(&world);
+            let cam_position = camera.calculate_dest_point(
+                Point2::new(
+                    rbody.position().translation.vector.x,
+                    rbody.position().translation.vector.y
+                )
+            );
+            let cam_scale = camera.draw_scale();
 
-            let rect_x = rbody.position().translation.vector.x;
-            let rect_y = rbody.position().translation.vector.y;
-            let rect_w = cube.0.half_extents().x;
-            let rect_h = cube.0.half_extents().y;
+            let rect_x = cam_position.x;
+            let rect_y = cam_position.y;
+            let rect_w = cube.0.half_extents().x * cam_scale.x;
+            let rect_h = cube.0.half_extents().y * cam_scale.y;
 
             let x1 = rect_x - rect_w;
             let x2 = rect_x + rect_w;
@@ -150,15 +158,14 @@ impl<'a, 'c> System<'a> for DebugRenderingSystem<'c> {
             let y2 = rect_y + rect_h;
 
             let points = [
-                camera.calculate_dest_point(Point2::new(x1, y1)),
-                camera.calculate_dest_point(Point2::new(x2, y1)),
-                camera.calculate_dest_point(Point2::new(x2, y2)),
-                camera.calculate_dest_point(Point2::new(x1, y2)),
+                Point2::new(x1, y1),
+                Point2::new(x2, y1),
+                Point2::new(x2, y2),
+                Point2::new(x1, y2),
             ];
 
-            let cam_scale = camera.draw_scale();
-
-            self.render(&points, cam_scale).expect("Error drawing cube bounds.")
+            self.render(&points, Point2::new(1., 1.))
+                .expect("Error drawing cube bounds.")
         });
     }
 }

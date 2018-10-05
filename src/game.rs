@@ -2,17 +2,18 @@ use ggez::timer;
 use ggez::graphics;
 use ggez::event; use ggez::event::{Keycode};
 use ggez::{Context, GameResult};
-use nalgebra::{Vector2};
 use nphysics2d::math::Vector;
-use specs::{Builder, Dispatcher, DispatcherBuilder, RunNow, World};
+use specs::{Dispatcher, DispatcherBuilder, RunNow, World};
 
 use assets::Assets;
 use camera::{Camera, ChaseCamera, SnapCamera, ChaseCameraSystem, SnapCameraSystem};
+use enemy::entity::{spawn_enemy};
 use input::{ControlableSystem, Controlable, Input};
+use player::entity::{spawn_player};
 use physics::{MoveSystem, PhysicSystem, EcsRigidBody, Position, ShapeCube, Velocity};
 use physics::retained_storage::{Retained};
 use physics::resources::{BodiesMap, PhysicWorld, UpdateTime};
-use rendering::{DebugRenderingSystem, RenderingSystem, Renderable, RenderableClass};
+use rendering::{DebugRenderingSystem, RenderingSystem, Renderable};
 
 pub fn register_components(world: &mut World) {
     world.register::<SnapCamera>();
@@ -62,33 +63,8 @@ impl<'a, 'b> Game<'a, 'b> {
             )
         );
 
-        world
-            .create_entity()
-            .with(Position { x: 200., y: 200. })
-            .with(Renderable {
-                layer: 0,
-                class: RenderableClass::Image {
-                    id: "warrior_attack_01"
-                }
-            })
-            .build();
-
-        world
-            .create_entity()
-            .with(Controlable)
-            .with(SnapCamera)
-            .with(Position { x: 100., y: 100. })
-            .with(Velocity { vector: Vector2::new(0., 0.) })
-            .with(Renderable {
-                layer: 0,
-                class: RenderableClass::Animation {
-                    id: "warrior_attack",
-                    frame: 0.,
-                    speed: 10.,
-                    length: 10.,
-                }
-            })
-            .build();
+        spawn_enemy(&mut world, 200., 200.);
+        spawn_player(&mut world, 100., 100.);
 
         Ok(Game {
             world,
