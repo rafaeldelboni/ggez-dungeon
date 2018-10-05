@@ -16,7 +16,7 @@ fn generate_draw_param (
     position: Position
 ) -> DrawParam {
     let cam_dest = camera.calculate_dest_point(
-        Point2::new(position.x, position.y)
+        Point2::new(position.vector.x, position.vector.y)
     );
     let cam_scale = camera.draw_scale();
 

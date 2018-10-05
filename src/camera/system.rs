@@ -17,7 +17,7 @@ impl<'a> System<'a> for SnapCameraSystem {
         let (mut camera, position, snap) = data;
 
         for (pos, _) in (&position, &snap).join() {
-            camera.move_to(Point2::new(pos.x as f32, pos.y as f32));
+            camera.move_to(Point2::new(pos.vector.x as f32, pos.vector.y as f32));
         }
     }
 }
@@ -36,8 +36,8 @@ impl<'a> System<'a> for ChaseCameraSystem {
 
         for (pos, _) in (&mut pos, &chase).join() {
             let loc = cam.location();
-            pos.x = loc.x as f32;
-            pos.y = loc.y as f32;
+            pos.vector.x = loc.x as f32;
+            pos.vector.y = loc.y as f32;
         }
     }
 }

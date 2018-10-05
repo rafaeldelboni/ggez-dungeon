@@ -27,8 +27,7 @@ impl<'a> System<'a> for MoveSystem {
         });
         (&mut pos, &body).join().for_each(|(pos, body)| {
             let b = body.get_mut(&mut phy_world);
-            pos.x = b.position().translation.vector.x;
-            pos.y = b.position().translation.vector.y;
+            pos.set(b.position().translation.vector);
         });
     }
 }

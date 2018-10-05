@@ -16,7 +16,11 @@ pub fn spawn_player(world: &mut World, x: f32, y: f32) {
         .with(Controlable)
         .with(SnapCamera)
         .with(shape_cube.clone())
-        .with(Position { x, y })
+        .with(Position {
+            vector: Vector2::new(x, y),
+            direction: Vector2::new(0., 0.),
+            scale: Vector2::new(0., 0.)
+        })
         .with(Velocity {
             vector: Vector2::new(0., 0.)
         })

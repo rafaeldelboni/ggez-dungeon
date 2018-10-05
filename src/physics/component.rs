@@ -10,12 +10,20 @@ use physics::{PhysicWorld, BodiesMap};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Position {
-    pub x: f32,
-    pub y: f32,
+    pub vector: Vector2<f32>,
+    pub direction: Vector2<f32>,
+    pub scale: Vector2<f32>,
 }
 
 impl Component for Position {
     type Storage = VecStorage<Self>;
+}
+
+impl Position {
+    pub fn set(&mut self, new: Vector2<f32>) {
+        println!("old{} new{}", self.vector, new);
+        self.vector = new;
+    }
 }
 
 #[derive(Debug, Copy, Clone)]
