@@ -15,12 +15,10 @@ fn generate_draw_param (
     frame: Screen,
     position: Position
 ) -> DrawParam {
-
     let cam_dest = camera.calculate_dest_point(
         Point2::new(position.x, position.y)
     );
     let cam_scale = camera.draw_scale();
-    println!("render{:?}", cam_dest);
 
     DrawParam {
         src: Rect {
