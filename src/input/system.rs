@@ -14,18 +14,18 @@ impl<'a> System<'a> for ControlableSystem {
     fn run(&mut self, (input, mut vel, ctrled): Self::SystemData) {
         (&mut vel, &ctrled).join().for_each(|(vel, _ctrled)| {
             if input.left {
-                vel.vector.x = -50.;
+                vel.x(-50.);
             } else if input.right {
-                vel.vector.x = 50.;
+                vel.x(50.);
             } else {
-                vel.vector.x = 0.;
+                vel.x(0.);
             }
             if input.up {
-                vel.vector.y = 50.;
+                vel.y(50.);
             } else if input.down {
-                vel.vector.y = -50.;
+                vel.y(-50.);
             } else {
-                vel.vector.y = 0.;
+                vel.y(0.);
             }
         });
     }

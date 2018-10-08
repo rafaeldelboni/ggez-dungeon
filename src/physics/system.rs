@@ -1,4 +1,3 @@
-use nphysics2d::algebra::{Velocity2};
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 
 use physics::component::{EcsRigidBody, Position, Velocity};
@@ -16,18 +15,16 @@ impl<'a> System<'a> for MoveSystem {
 
     fn run(&mut self, data: Self::SystemData) {
         let (vel, mut pos, mut body, mut phy_world) = data;
-        (&vel, &mut body).join().for_each(|(vel, body)| {
-            let b = body.get_mut(&mut phy_world);
-            if vel.vector.x != 0.0 && vel.vector.y != 0.0 {
-                let pi_inverse = 1.0 / (2.0 as f32).sqrt();
-                b.set_velocity(Velocity2::linear(vel.vector.x, vel.vector.y) * pi_inverse);
-            } else {
-                b.set_velocity(Velocity2::linear(vel.vector.x, vel.vector.y));
+        (&mut pos, &vel, &mut body).join().for_each(|(pos, vel, body)| {
+            if vel.is_moving() {
+                let updated_position = body
+                    .apply_velocity(&mut phy_world, vel.get())
+                    .position()
+                    .translation
+                    .vector;
+
+                pos.pull(updated_position);
             }
-        });
-        (&mut pos, &body).join().for_each(|(pos, body)| {
-            let b = body.get_mut(&mut phy_world);
-            pos.set(b.position().translation.vector);
         });
     }
 }

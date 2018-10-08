@@ -1,5 +1,6 @@
 use nalgebra::{Isometry2, Vector2};
 use ncollide2d::shape::{Cuboid, ShapeHandle};
+use nphysics2d::algebra::{Velocity2};
 use nphysics2d::math::{Point, Inertia, Isometry};
 use nphysics2d::object::{BodyHandle, BodyStatus, Material, RigidBody};
 use nphysics2d::volumetric::Volumetric;
@@ -20,19 +21,66 @@ impl Component for Position {
 }
 
 impl Position {
-    pub fn set(&mut self, new: Vector2<f32>) {
-        println!("old{} new{}", self.vector, new);
+    pub fn pull(&mut self, new: Vector2<f32>) {
+        self.direction.x = match new.x - self.vector.x {
+            diff_x if diff_x > 0. => 1.,
+            diff_x if diff_x < 0. => -1.,
+            _ => self.direction.x,
+        };
+        self.direction.y = match new.y - self.vector.y {
+            diff_y if diff_y > 0. => -1.,
+            diff_y if diff_y < 0. => 1.,
+            _ => self.direction.y,
+        };
         self.vector = new;
     }
 }
 
 #[derive(Debug, Copy, Clone)]
 pub struct Velocity {
-    pub vector: Vector2<f32>
+    old: Vector2<f32>,
+    current: Vector2<f32>
 }
 
 impl Component for Velocity {
     type Storage = VecStorage<Self>;
+}
+
+impl Velocity {
+    pub fn new(initial: Vector2<f32>) -> Velocity {
+        Velocity {
+            old: initial.clone(),
+            current: initial.clone(),
+        }
+    }
+
+    pub fn get(&self) -> Vector2<f32> {
+        if self.current.x != 0.0 && self.current.y != 0.0 {
+            let pi_inverse = 1.0 / (2.0 as f32).sqrt();
+            self.current * pi_inverse
+        } else {
+            self.current
+        }
+    }
+
+    pub fn y(&mut self, y: f32) {
+        self.old.y = self.current.y;
+        self.current.y = y;
+    }
+
+    pub fn x(&mut self, x: f32) {
+        self.old.x = self.current.x;
+        self.current.x = x;
+    }
+
+    pub fn is_moving(&self) -> bool {
+        if self.current.x != 0.0 || self.current.y != 0.0 ||
+            self.old.x != 0.0 || self.old.y != 0.0 {
+                true
+            } else {
+                false
+            }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -152,5 +200,16 @@ impl EcsRigidBody {
         physic_world
             .rigid_body_mut(self.0)
             .expect("Rigid body in specs does not exist in physic world")
+    }
+
+    #[inline]
+    pub fn apply_velocity<'a>(
+        &self,
+        physic_world: &'a mut PhysicWorld,
+        velocity: Vector2<f32>,
+    ) -> &'a mut RigidBody<f32> {
+        let body = self.get_mut(physic_world);
+        body.set_velocity(Velocity2::linear(velocity.x, velocity.y));
+        body
     }
 }

@@ -14,12 +14,10 @@ pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
         .with(shape_cube.clone())
         .with(Position {
             vector: Vector2::new(x, y),
-            direction: Vector2::new(0., 0.),
-            scale: Vector2::new(0., 0.)
+            direction: Vector2::new(1., 1.),
+            scale: Vector2::new(1., 1.)
         })
-        .with(Velocity {
-            vector: Vector2::new(0., 0.)
-        })
+        .with(Velocity::new(Vector2::new(0., 0.)))
         .with(Renderable {
             layer: 0,
             class: RenderableClass::Image {

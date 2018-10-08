@@ -19,6 +19,10 @@ fn generate_draw_param (
         Point2::new(position.vector.x, position.vector.y)
     );
     let cam_scale = camera.draw_scale();
+    let sprite_scale = Point2::new(
+        cam_scale.x * position.scale.x * position.direction.x,
+        cam_scale.y * position.scale.y,
+    );
 
     DrawParam {
         src: Rect {
@@ -28,7 +32,7 @@ fn generate_draw_param (
             h: frame.h as f32,
         },
         dest: cam_dest,
-        scale: cam_scale,
+        scale: sprite_scale,
         offset: Point2::new(0.5, 0.5),
         shear: Point2::new(1./1e4, 1./1e4),
         ..Default::default()
