@@ -13,7 +13,7 @@ const TARGET_FPS: f32 = 60.;
 
 fn generate_draw_param (
     camera: &Camera,
-    frame: Screen,
+    frame: &Screen,
     sprite: Sprite
 ) -> DrawParam {
     let cam_dest = camera.calculate_dest_point(
@@ -48,14 +48,14 @@ fn draw_image(
     context: &mut Context,
     spritesheet: &Write<Assets>,
     sprite: &Sprite,
-    id: String
+    id: &str
 ) {
-    if let Some(frame_data) = &spritesheet.spritesheet_data.frames.get(&id) {
+    if let Some(frame_data) = &spritesheet.spritesheet_data.frames.get(id) {
         let frame = frame_data.screen.clone();
         draw_ex(
             context,
             &spritesheet.spritesheet_image,
-            generate_draw_param(&camera, frame, *sprite)
+            generate_draw_param(&camera, &frame, *sprite)
         ).expect("Unable do render image.");
     }
 }
@@ -95,10 +95,10 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                     };
 
                     let id = format!("{}_{:02}", id, frame as usize);
-                    draw_image(&*camera, self.ctx, &spritesheet, sprite, id);
+                    draw_image(&*camera, self.ctx, &spritesheet, sprite, &id);
                 },
                 RenderableClass::Image { id } => {
-                    draw_image(&*camera, self.ctx, &spritesheet, sprite, String::from(id));
+                    draw_image(&*camera, self.ctx, &spritesheet, sprite, id);
                 },
             }
         }

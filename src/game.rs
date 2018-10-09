@@ -90,7 +90,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let seconds = dt.subsec_nanos() as f32 / 1_000_000_000.0;
         self.world.write_resource::<UpdateTime>().0 = seconds;
 
-        self.dispatcher.dispatch(&mut self.world.res);
+        self.dispatcher.dispatch(&self.world.res);
         self.world.maintain();
 
         let mut physic_world = self.world.write_resource::<PhysicWorld>();
@@ -117,11 +117,11 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         graphics::clear(ctx);
         {
             let mut rs = RenderingSystem::new(ctx);
-            rs.run_now(&mut self.world.res);
+            rs.run_now(&self.world.res);
         }
         {
             let mut ds = DebugRenderingSystem::new(ctx);
-            ds.run_now(&mut self.world.res);
+            ds.run_now(&self.world.res);
         }
         graphics::present(ctx);
         Ok(())

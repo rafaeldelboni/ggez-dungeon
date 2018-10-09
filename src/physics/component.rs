@@ -22,8 +22,8 @@ impl Component for Velocity {
 impl Velocity {
     pub fn new(initial: Vector2<f32>) -> Velocity {
         Velocity {
-            old: initial.clone(),
-            current: initial.clone(),
+            old: initial,
+            current: initial,
         }
     }
 
@@ -47,21 +47,13 @@ impl Velocity {
     }
 
     pub fn is_moving(&self) -> bool {
-        if self.current.x != 0.0 || self.current.y != 0.0 ||
-            self.old.x != 0.0 || self.old.y != 0.0 {
-                true
-            } else {
-                false
-            }
+        self.current.x != 0.0 || self.current.y != 0.0 ||
+        self.old.x != 0.0 || self.old.y != 0.0
     }
 
     pub fn is_stoping(&self) -> bool {
-        if self.current.x == 0.0 && self.current.y == 0.0 ||
-            (self.old.x != 0.0 || self.old.y != 0.0) {
-            true
-        } else {
-            false
-        }
+        self.current.x == 0.0 && self.current.y == 0.0 ||
+        (self.old.x != 0.0 || self.old.y != 0.0)
     }
 }
 
@@ -106,8 +98,10 @@ macro_rules! impl_ShapeBase {
                     body_status,
                     &mut world.write_storage(),
                     &mut physic_world,
-                    &mut world.write_resource(),
                 );
+
+                world.write_resource::<BodiesMap>()
+                    .insert(body_handle.handle(), entity);
 
                 let margin = 0.01;
                 physic_world.add_collider(
@@ -140,10 +134,10 @@ impl EcsRigidBody {
         status: BodyStatus,
         bodies_handle: &mut WriteStorage<'a, EcsRigidBody>,
         physic_world: &mut PhysicWorld,
-        bodies_map: &mut BodiesMap,
     ) -> Self {
-        let body_handle =
-            physic_world.add_rigid_body(position, local_inertia, local_center_of_mass);
+        let body_handle = physic_world
+            .add_rigid_body(position, local_inertia, local_center_of_mass);
+
         {
             let rigid_body = physic_world.rigid_body_mut(body_handle).unwrap();
             rigid_body.set_status(status);
@@ -151,7 +145,6 @@ impl EcsRigidBody {
                 .activation_status_mut()
                 .set_deactivation_threshold(None);
         }
-        bodies_map.insert(body_handle, entity);
 
         bodies_handle
             .insert(entity, EcsRigidBody(body_handle))

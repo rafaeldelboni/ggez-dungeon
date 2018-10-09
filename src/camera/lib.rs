@@ -45,8 +45,8 @@ impl Camera {
         let screen_size = Vector2::new(screen_width as f32, screen_height as f32);
         let view_size = Vector2::new(view_width as f32, view_height as f32);
         Camera {
-            screen_size: screen_size,
-            view_size: view_size,
+            screen_size,
+            view_size,
             view_center: Point2::new(0.0, 0.0),
         }
     }
@@ -95,9 +95,7 @@ impl Camera {
         let screen_coords = Vector2::new(flipped_x, flipped_y);
         let units_per_pixel = self.view_size.component_div(&self.screen_size);
         let view_scale = screen_coords.component_mul(&units_per_pixel);
-        let view_offset = self.view_center + view_scale;
-
-        view_offset
+        self.view_center + view_scale
     }
 
     pub fn location(&self) -> Point2 {
