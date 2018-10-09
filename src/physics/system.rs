@@ -17,13 +17,12 @@ impl<'a> System<'a> for MoveSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (vel, mut sprite, mut body, mut phy_world) = data;
         (&mut sprite, &vel, &mut body).join().for_each(|(sprite, vel, body)| {
-            if vel.is_moving() {
+            if vel.is_stoping() || vel.is_moving() {
                 let updated_position = body
                     .apply_velocity(&mut phy_world, vel.get())
                     .position()
                     .translation
                     .vector;
-
                 sprite.pull(updated_position);
             }
         });

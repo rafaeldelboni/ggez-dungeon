@@ -54,6 +54,15 @@ impl Velocity {
                 false
             }
     }
+
+    pub fn is_stoping(&self) -> bool {
+        if self.current.x == 0.0 && self.current.y == 0.0 ||
+            (self.old.x != 0.0 || self.old.y != 0.0) {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
