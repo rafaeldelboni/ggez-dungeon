@@ -27,6 +27,7 @@ pub struct Sprite {
     pub position: Vector2<f32>,
     pub direction: Vector2<f32>,
     pub scale: Vector2<f32>,
+    pub offset: Vector2<f32>
 }
 
 impl Component for Sprite {

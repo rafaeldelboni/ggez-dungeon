@@ -17,7 +17,10 @@ fn generate_draw_param (
     sprite: Sprite
 ) -> DrawParam {
     let cam_dest = camera.calculate_dest_point(
-        Point2::new(sprite.position.x, sprite.position.y)
+        Point2::new(
+            sprite.position.x + sprite.offset.x,
+            sprite.position.y + sprite.offset.y
+        )
     );
     let cam_scale = camera.draw_scale();
     let sprite_scale = Point2::new(

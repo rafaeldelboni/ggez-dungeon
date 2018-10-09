@@ -15,7 +15,8 @@ pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
         .with(Sprite {
             position: Vector2::new(x, y),
             direction: Vector2::new(1., 1.),
-            scale: Vector2::new(1., 1.)
+            scale: Vector2::new(1., 1.),
+            offset: Vector2::new(0., 10.)
         })
         .with(Velocity::new(Vector2::new(0., 0.)))
         .with(Renderable {
