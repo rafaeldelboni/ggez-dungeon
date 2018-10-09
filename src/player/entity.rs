@@ -3,10 +3,10 @@ use ncollide2d::shape::{Cuboid};
 use nphysics2d::object::{BodyStatus};
 use specs::{Builder, World};
 
-use camera::{SnapCamera};
-use input::{Controlable};
-use physics::{Position, ShapeBase, ShapeCube, Velocity};
-use rendering::{Renderable, RenderableClass};
+use camera::component::SnapCamera;
+use input::component::Controlable;
+use physics::component::{ShapeBase, ShapeCube, Velocity};
+use rendering::component::{Renderable, RenderableClass, Sprite};
 
 pub fn spawn_player(world: &mut World, x: f32, y: f32) {
     let shape_cube = ShapeCube(Cuboid::new(Vector2::new(5., 5.)));
@@ -16,8 +16,8 @@ pub fn spawn_player(world: &mut World, x: f32, y: f32) {
         .with(Controlable)
         .with(SnapCamera)
         .with(shape_cube.clone())
-        .with(Position {
-            vector: Vector2::new(x, y),
+        .with(Sprite {
+            position: Vector2::new(x, y),
             direction: Vector2::new(1., 1.),
             scale: Vector2::new(1., 1.)
         })

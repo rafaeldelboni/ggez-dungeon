@@ -5,23 +5,24 @@ use spritesheet_generator::spritesheet::Screen;
 
 use assets::Assets;
 use camera::Camera;
-use physics::{EcsRigidBody, Position, PhysicWorld, ShapeCube};
-use rendering::{Renderable, RenderableClass};
+use physics::component::{EcsRigidBody, ShapeCube};
+use physics::resources::{PhysicWorld};
+use rendering::component::{Renderable, RenderableClass, Sprite};
 
 const TARGET_FPS: f32 = 60.;
 
 fn generate_draw_param (
     camera: &Camera,
     frame: Screen,
-    position: Position
+    sprite: Sprite
 ) -> DrawParam {
     let cam_dest = camera.calculate_dest_point(
-        Point2::new(position.vector.x, position.vector.y)
+        Point2::new(sprite.position.x, sprite.position.y)
     );
     let cam_scale = camera.draw_scale();
     let sprite_scale = Point2::new(
-        cam_scale.x * position.scale.x * position.direction.x,
-        cam_scale.y * position.scale.y,
+        cam_scale.x * sprite.scale.x * sprite.direction.x,
+        cam_scale.y * sprite.scale.y,
     );
 
     DrawParam {
@@ -43,7 +44,7 @@ fn draw_image(
     camera: &Camera,
     context: &mut Context,
     spritesheet: &Write<Assets>,
-    position: &Position,
+    sprite: &Sprite,
     id: String
 ) {
     if let Some(frame_data) = &spritesheet.spritesheet_data.frames.get(&id) {
@@ -51,7 +52,7 @@ fn draw_image(
         draw_ex(
             context,
             &spritesheet.spritesheet_image,
-            generate_draw_param(&camera, frame, *position)
+            generate_draw_param(&camera, frame, *sprite)
         ).expect("Unable do render image.");
     }
 }
@@ -71,14 +72,14 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
         Option<Write<'a, Assets>>,
         Read<'a, Camera>,
         WriteStorage<'a, Renderable>,
-        ReadStorage<'a, Position>,
+        ReadStorage<'a, Sprite>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (assets_sd, camera, mut renderable_sd, position_sd) = data;
+        let (assets_sd, camera, mut renderables, sprites) = data;
         let spritesheet = assets_sd.unwrap();
 
-        for (mut renderable, position) in (&mut renderable_sd, &position_sd).join() {
+        for (mut renderable, sprite) in (&mut renderables, &sprites).join() {
             match renderable.class {
                 RenderableClass::Animation { id, frame, speed, length } => {
                     let next_frame = (frame + (1. / TARGET_FPS) * speed) % length;
@@ -91,10 +92,10 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                     };
 
                     let id = format!("{}_{:02}", id, frame as usize);
-                    draw_image(&*camera, self.ctx, &spritesheet, position, id);
+                    draw_image(&*camera, self.ctx, &spritesheet, sprite, id);
                 },
                 RenderableClass::Image { id } => {
-                    draw_image(&*camera, self.ctx, &spritesheet, position, String::from(id));
+                    draw_image(&*camera, self.ctx, &spritesheet, sprite, String::from(id));
                 },
             }
         }

@@ -6,35 +6,8 @@ use nphysics2d::object::{BodyHandle, BodyStatus, Material, RigidBody};
 use nphysics2d::volumetric::Volumetric;
 use specs::{Component, Entity, VecStorage, World, WriteStorage};
 
-use physics::retained_storage::{RetainedStorage};
-use physics::{PhysicWorld, BodiesMap};
-
-#[derive(Debug, Copy, Clone)]
-pub struct Position {
-    pub vector: Vector2<f32>,
-    pub direction: Vector2<f32>,
-    pub scale: Vector2<f32>,
-}
-
-impl Component for Position {
-    type Storage = VecStorage<Self>;
-}
-
-impl Position {
-    pub fn pull(&mut self, new: Vector2<f32>) {
-        self.direction.x = match new.x - self.vector.x {
-            diff_x if diff_x > 0. => 1.,
-            diff_x if diff_x < 0. => -1.,
-            _ => self.direction.x,
-        };
-        self.direction.y = match new.y - self.vector.y {
-            diff_y if diff_y > 0. => -1.,
-            diff_y if diff_y < 0. => 1.,
-            _ => self.direction.y,
-        };
-        self.vector = new;
-    }
-}
+use physics::retained_storage::RetainedStorage;
+use physics::resources::{PhysicWorld, BodiesMap};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Velocity {

@@ -1,21 +1,22 @@
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 
-use physics::component::{EcsRigidBody, Position, Velocity};
+use physics::component::{EcsRigidBody, Velocity};
 use physics::resources::{UpdateTime, PhysicWorld};
+use rendering::component::{Sprite};
 
 pub struct MoveSystem;
 
 impl<'a> System<'a> for MoveSystem {
     type SystemData = (
         ReadStorage<'a, Velocity>,
-        WriteStorage<'a, Position>,
+        WriteStorage<'a, Sprite>,
         WriteStorage<'a, EcsRigidBody>,
         Write<'a, PhysicWorld>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (vel, mut pos, mut body, mut phy_world) = data;
-        (&mut pos, &vel, &mut body).join().for_each(|(pos, vel, body)| {
+        let (vel, mut sprite, mut body, mut phy_world) = data;
+        (&mut sprite, &vel, &mut body).join().for_each(|(sprite, vel, body)| {
             if vel.is_moving() {
                 let updated_position = body
                     .apply_velocity(&mut phy_world, vel.get())
@@ -23,7 +24,7 @@ impl<'a> System<'a> for MoveSystem {
                     .translation
                     .vector;
 
-                pos.pull(updated_position);
+                sprite.pull(updated_position);
             }
         });
     }

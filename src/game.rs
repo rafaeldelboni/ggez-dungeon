@@ -6,24 +6,30 @@ use nphysics2d::math::Vector;
 use specs::{Dispatcher, DispatcherBuilder, RunNow, World};
 
 use assets::Assets;
-use camera::{Camera, ChaseCamera, SnapCamera, ChaseCameraSystem, SnapCameraSystem};
+use camera::Camera;
+use camera::system::{ChaseCameraSystem, SnapCameraSystem};
+use camera::component::{ChaseCamera, SnapCamera};
 use enemy::entity::{spawn_enemy};
-use input::{ControlableSystem, Controlable, Input};
+use input::system::{ControlableSystem};
+use input::component::{Controlable};
+use input::resources::{Input};
 use player::entity::{spawn_player};
-use physics::{MoveSystem, PhysicSystem, EcsRigidBody, Position, ShapeCube, Velocity};
+use physics::system::{MoveSystem, PhysicSystem};
+use physics::component::{EcsRigidBody, ShapeCube, Velocity};
 use physics::retained_storage::{Retained};
 use physics::resources::{BodiesMap, PhysicWorld, UpdateTime};
-use rendering::{DebugRenderingSystem, RenderingSystem, Renderable};
+use rendering::component::{Sprite, Renderable};
+use rendering::system::{DebugRenderingSystem, RenderingSystem};
 
 pub fn register_components(world: &mut World) {
-    world.register::<SnapCamera>();
     world.register::<ChaseCamera>();
     world.register::<Controlable>();
-    world.register::<Position>();
-    world.register::<Velocity>();
-    world.register::<ShapeCube>();
     world.register::<EcsRigidBody>();
     world.register::<Renderable>();
+    world.register::<ShapeCube>();
+    world.register::<SnapCamera>();
+    world.register::<Sprite>();
+    world.register::<Velocity>();
 }
 
 pub struct Game<'a, 'b> {

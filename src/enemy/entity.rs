@@ -3,8 +3,8 @@ use ncollide2d::shape::{Cuboid};
 use nphysics2d::object::{BodyStatus};
 use specs::{Builder, World};
 
-use physics::{Position, ShapeBase, ShapeCube, Velocity};
-use rendering::{Renderable, RenderableClass};
+use physics::component::{ShapeBase, ShapeCube, Velocity};
+use rendering::component::{Renderable, RenderableClass, Sprite};
 
 pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
     let shape_cube = ShapeCube(Cuboid::new(Vector2::new(5., 5.)));
@@ -12,8 +12,8 @@ pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
     let entity = world
         .create_entity()
         .with(shape_cube.clone())
-        .with(Position {
-            vector: Vector2::new(x, y),
+        .with(Sprite {
+            position: Vector2::new(x, y),
             direction: Vector2::new(1., 1.),
             scale: Vector2::new(1., 1.)
         })

@@ -1,23 +1,26 @@
 use ggez::graphics::{Point2};
 use specs::{Join, Read, System, ReadStorage, Write, WriteStorage};
 
-use camera::{Camera, ChaseCamera, SnapCamera};
-use physics::{Position};
+use camera::Camera;
+use camera::component::{ChaseCamera, SnapCamera};
+use rendering::component::{Sprite};
 
 pub struct SnapCameraSystem ;
 
 impl<'a> System<'a> for SnapCameraSystem {
     type SystemData = (
         Write<'a, Camera>,
-        ReadStorage<'a, Position>,
+        ReadStorage<'a, Sprite>,
         ReadStorage<'a, SnapCamera>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut camera, position, snap) = data;
+        let (mut camera, sprite, snap) = data;
 
-        for (pos, _) in (&position, &snap).join() {
-            camera.move_to(Point2::new(pos.vector.x as f32, pos.vector.y as f32));
+        for (sprite, _) in (&sprite, &snap).join() {
+            camera.move_to(
+                Point2::new(sprite.position.x as f32, sprite.position.y as f32)
+            );
         }
     }
 }
@@ -28,16 +31,16 @@ impl<'a> System<'a> for ChaseCameraSystem {
     type SystemData = (
         Read<'a, Camera>,
         ReadStorage<'a, ChaseCamera>,
-        WriteStorage<'a, Position>,
+        WriteStorage<'a, Sprite>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (cam, chase, mut pos) = data;
+        let (cam, chase, mut sprite) = data;
 
-        for (pos, _) in (&mut pos, &chase).join() {
-            let loc = cam.location();
-            pos.vector.x = loc.x as f32;
-            pos.vector.y = loc.y as f32;
+        for (sprite, _) in (&mut sprite, &chase).join() {
+            let cam_location = cam.location();
+            sprite.position.x = cam_location.x as f32;
+            sprite.position.y = cam_location.y as f32;
         }
     }
 }

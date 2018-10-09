@@ -1,6 +1,8 @@
-use input::{Controlable, Input};
-use physics::{Velocity};
 use specs::{Join, Read, ReadStorage, System, WriteStorage};
+
+use input::component::{Controlable};
+use input::resources::{Input};
+use physics::component::{Velocity};
 
 pub struct ControlableSystem;
 
