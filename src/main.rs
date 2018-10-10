@@ -1,3 +1,4 @@
+extern crate chrono;
 extern crate ggez;
 extern crate ggez_goodies;
 extern crate hibitset;
@@ -17,6 +18,7 @@ mod assets;
 mod player;
 mod physics;
 mod rendering;
+mod states;
 
 use ggez::event;
 use ggez::{Context, graphics};
