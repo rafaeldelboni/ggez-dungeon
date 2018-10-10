@@ -20,6 +20,7 @@ use physics::retained_storage::{Retained};
 use physics::resources::{BodiesMap, PhysicWorld, UpdateTime};
 use rendering::component::{Sprite, Renderable};
 use rendering::system::{DebugRenderingSystem, RenderingSystem};
+use states::component::{States};
 
 pub fn register_components(world: &mut World) {
     world.register::<ChaseCamera>();
@@ -29,6 +30,7 @@ pub fn register_components(world: &mut World) {
     world.register::<ShapeCube>();
     world.register::<SnapCamera>();
     world.register::<Sprite>();
+    world.register::<States>();
     world.register::<Velocity>();
 }
 

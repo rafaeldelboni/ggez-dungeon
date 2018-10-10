@@ -7,7 +7,8 @@ use assets::Assets;
 use camera::Camera;
 use physics::component::{EcsRigidBody, ShapeCube};
 use physics::resources::{PhysicWorld};
-use rendering::component::{Renderable, RenderableClass, Sprite};
+use rendering::component::{Renderable, Sprite};
+use rendering::resources::{RenderableClass};
 
 const TARGET_FPS: f32 = 60.;
 

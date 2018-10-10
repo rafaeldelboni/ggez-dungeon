@@ -4,7 +4,8 @@ use nphysics2d::object::{BodyStatus};
 use specs::{Builder, World};
 
 use physics::component::{ShapeBase, ShapeCube, Velocity};
-use rendering::component::{Renderable, RenderableClass, Sprite};
+use rendering::component::{Renderable, Sprite};
+use rendering::resources::{RenderableClass};
 
 pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
     let shape_cube = ShapeCube(Cuboid::new(Vector2::new(5., 5.)));
