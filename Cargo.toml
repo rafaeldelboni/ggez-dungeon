@@ -8,7 +8,6 @@ build = "build.rs"
 spritesheet-generator = "0.3.3"
 
 [dependencies]
-chrono = "0.4"
 ggez = { version = "0.4", features = ["cargo-resource-root"] }
 ggez-goodies = "0.1"
 hibitset = "0.5"

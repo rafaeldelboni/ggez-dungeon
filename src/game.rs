@@ -21,6 +21,7 @@ use physics::resources::{BodiesMap, PhysicWorld, UpdateTime};
 use rendering::component::{Sprite, Renderable};
 use rendering::system::{DebugRenderingSystem, RenderingSystem};
 use states::component::{States};
+use states::system::{StatesSystem};
 
 pub fn register_components(world: &mut World) {
     world.register::<ChaseCamera>();
@@ -46,9 +47,10 @@ impl<'a, 'b> Game<'a, 'b> {
         register_components(&mut world);
 
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
+            .with(StatesSystem, "states", &[])
             .with(ControlableSystem, "controlable", &[])
             .with(PhysicSystem, "physic_system", &[])
-            .with(MoveSystem, "move", &[])
+            .with(MoveSystem, "move", &["physic_system"])
             .with(ChaseCameraSystem, "chase_camera", &["move"])
             .with(SnapCameraSystem, "snap_camera", &["move"])
             .build();
