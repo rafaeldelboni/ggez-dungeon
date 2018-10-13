@@ -16,6 +16,6 @@ pub fn player_walk() -> RenderableState {
         state: State::new(
             StateActions::Walk, None, StateCommandTypes::Push, false
         ),
-        renderable: RenderableClass::new_animation("warrior_walk", 10., 10.)
+        renderable: RenderableClass::new_animation("warrior_walk", 10., 09.)
     }
 }
