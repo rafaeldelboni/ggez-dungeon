@@ -91,7 +91,6 @@ fn generate_draw_param (
         dest: cam_dest,
         scale: sprite_scale,
         offset: Point2::new(0.5, 0.5),
-        shear: Point2::new(1./1e4, 1./1e4),
         ..Default::default()
     }
 }
