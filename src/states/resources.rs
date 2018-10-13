@@ -15,23 +15,23 @@ pub enum StateCommandTypes {
 #[derive(Clone, Debug)]
 pub struct State {
     pub action: StateActions,
-    pub duration_ticks: Option<i64>,
-    pub executed_ticks: i64,
+    pub duration_secs: Option<f32>,
+    pub executed_secs: f32,
     pub onstart_cmd_type: StateCommandTypes,
     pub interruptible: bool
 }
 
 impl State {
-    fn new(
+    pub fn new(
         action: StateActions,
-        duration_ticks: Option<i64>,
+        duration_secs: Option<f32>,
         onstart_cmd_type: StateCommandTypes,
         interruptible: bool
     ) -> State {
         State {
             action,
-            duration_ticks,
-            executed_ticks: 0,
+            duration_secs,
+            executed_secs: 0.0,
             onstart_cmd_type,
             interruptible
         }

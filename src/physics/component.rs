@@ -47,12 +47,12 @@ impl Velocity {
     }
 
     pub fn is_moving(&self) -> bool {
-        self.current.x != 0.0 || self.current.y != 0.0 ||
-        self.old.x != 0.0 || self.old.y != 0.0
+        (self.current.x != 0.0 || self.current.y != 0.0) ||
+        (self.old.x != 0.0 || self.old.y != 0.0)
     }
 
     pub fn is_stoping(&self) -> bool {
-        self.current.x == 0.0 && self.current.y == 0.0 ||
+        (self.current.x == 0.0 && self.current.y == 0.0) &&
         (self.old.x != 0.0 || self.old.y != 0.0)
     }
 }

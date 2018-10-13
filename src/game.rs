@@ -59,7 +59,7 @@ impl<'a, 'b> Game<'a, 'b> {
         physic_world.set_gravity(Vector::new(0.0, 0.0));
         world.add_resource(physic_world);
         world.add_resource(BodiesMap::new());
-        world.add_resource(UpdateTime(0.0));
+        world.add_resource(UpdateTime{seconds: 0.0});
 
         world.add_resource(Assets::new(ctx)?);
         world.add_resource(Input::new());
@@ -85,14 +85,14 @@ impl<'a, 'b> Game<'a, 'b> {
 
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        if timer::get_ticks(ctx) % 100 == 0 {
-            println!("Delta frame time: {:?} ", timer::get_delta(ctx));
-            println!("Average FPS: {}", timer::get_fps(ctx));
-        }
-
         let dt = timer::get_delta(ctx);
         let seconds = dt.subsec_nanos() as f32 / 1_000_000_000.0;
-        self.world.write_resource::<UpdateTime>().0 = seconds;
+        self.world.write_resource::<UpdateTime>().seconds = seconds;
+
+        if timer::get_ticks(ctx) % 100 == 0 {
+            println!("Delta Time (seconds): {:?} ", seconds);
+            println!("Average FPS: {}", timer::get_fps(ctx));
+        }
 
         self.dispatcher.dispatch(&self.world.res);
         self.world.maintain();

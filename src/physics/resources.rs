@@ -6,7 +6,9 @@ use nphysics2d::world::World;
 use nphysics2d::object::{BodyHandle};
 
 #[derive(Debug, Default)]
-pub struct UpdateTime(pub f32);
+pub struct UpdateTime {
+    pub seconds: f32
+}
 
 pub type PhysicWorld = World<f32>;
 

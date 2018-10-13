@@ -11,9 +11,9 @@ impl<'a> System<'a> for StatesSystem {
         WriteStorage<'a, States>,
     );
 
-    fn run(&mut self, (_delta, mut states): Self::SystemData) {
+    fn run(&mut self, (delta, mut states): Self::SystemData) {
         (&mut states).join().for_each(|state| {
-            state.update();
+            state.update(delta.seconds);
         })
     }
 }
