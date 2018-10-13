@@ -90,7 +90,6 @@ impl States {
                 if current.duration_secs.is_some() {
                     current.executed_secs += delta_seconds;
                 }
-                println!("{:?}", current);
             }
         }
     }
