@@ -21,13 +21,13 @@ impl<'a> System<'a> for MoveSystem {
         let (vel, mut sprite, mut body, mut states, mut phy_world) = data;
         (&mut sprite, &vel, &mut states, &mut body).join().for_each(
             |(sprite, vel, states, body)| {
+                let updated_position = body
+                    .apply_velocity(&mut phy_world, vel.get())
+                    .position()
+                    .translation
+                    .vector;
+                sprite.pull(updated_position);
                 if vel.is_stoping() || vel.is_moving() {
-                    let updated_position = body
-                        .apply_velocity(&mut phy_world, vel.get())
-                        .position()
-                        .translation
-                        .vector;
-                    sprite.pull(updated_position);
                     states.handle(&StateActions::Walk);
                 } else {
                     states.handle(&StateActions::Idle);
