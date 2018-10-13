@@ -28,9 +28,9 @@ impl<'a> System<'a> for MoveSystem {
                         .translation
                         .vector;
                     sprite.pull(updated_position);
-                    states.handle(StateActions::Walk);
+                    states.handle(&StateActions::Walk);
                 } else {
-                    states.handle(StateActions::Idle);
+                    states.handle(&StateActions::Idle);
                 }
             }
         );

@@ -45,7 +45,7 @@ impl States {
         }
     }
 
-    pub fn handle(&mut self, action: StateActions) {
+    pub fn handle(&mut self, action: &StateActions) {
         let state = match action {
             StateActions::Idle => self.idle.expect("Idle doesn't exists.")(),
             StateActions::Walk => self.walk.expect("Walk doesn't exists.")(),
@@ -57,7 +57,7 @@ impl States {
     pub fn start(&mut self, state: State) {
         let should_start =
             if let Some(current) = self.current() {
-                !current.duration_secs.is_some()
+                current.duration_secs.is_none()
                     && current.action != state.action
             } else {
                 true
