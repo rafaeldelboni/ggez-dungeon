@@ -4,6 +4,24 @@
 
 My goal is learn Rust while making a game and, after I archive and working MVP, I will try to refactor the all the code in a Functional way.
 
+### Todos
+
+ - New AABB "Body" Component
+   - Struct (Center, Size, Halfsize, Scale)
+   - Register Component
+   - Add to Entity
+     - https://github.com/dpogretskiy/specs-ggez-showcase/blob/master/src/physics/aabb.rs
+ - Colision Detection Method 
+     - Impl : pub fn overlaps(&self, other: &AABB) -> bool
+       - https://studiofreya.com/3d-math-and-physics/simple-aabb-vs-aabb-collision-detection/
+       - https://tutorialedge.net/gamedev/aabb-collision-detection-tutorial/
+ - Replace Position system with Physics System
+     - Create new movement system
+     - Push handling
+     - Squish
+       - https://mattmakesgames.tumblr.com/post/127890619821/towerfall-physics
+       - https://gamedevelopment.tutsplus.com/tutorials/basic-2d-platformer-physics-part-1--cms-25799
+
 ### Controls
 
 | Action | Command |
@@ -43,6 +61,12 @@ cargo run --release
 Run in debug mode:
 ```bash
 cargo run
+```
+
+## Update Spritesheets:
+Be sure you're running this code at the root of the project directory!
+```
+  cargo run -p spritesheet
 ```
 
 ## Credits
