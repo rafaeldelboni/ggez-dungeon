@@ -29,12 +29,7 @@ pub fn spawn_player(world: &mut World, x: f32, y: f32) {
         .with(States::new(Some(player_idle), Some(player_walk)))
         .with(Renderable {
             layer: 0,
-            class: RenderableClass::Animation {
-                id: "warrior_attack",
-                frame: 0.,
-                speed: 10.,
-                length: 10.,
-            }
+            class: RenderableClass::new_animation ("warrior_idle", 10., 10.)
         })
     .build();
 

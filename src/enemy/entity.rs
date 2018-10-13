@@ -25,9 +25,7 @@ pub fn spawn_enemy(world: &mut World, x: f32, y: f32) {
         .with(States::new(Some(enemy_idle), Some(enemy_walk)))
         .with(Renderable {
             layer: 0,
-            class: RenderableClass::Image {
-                id: "warrior_attack_01"
-            }
+            class: RenderableClass::new_animation ("warrior_idle", 10., 10.)
         })
     .build();
 

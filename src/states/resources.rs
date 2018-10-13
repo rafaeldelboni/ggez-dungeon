@@ -8,7 +8,6 @@ pub enum StateActions {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum StateCommandTypes {
     Push,
-    Pop,
     Replace
 }
 

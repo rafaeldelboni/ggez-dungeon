@@ -1,12 +1,13 @@
 use specs::{Component, VecStorage};
 
-use states::resources::{State, StateActions, StateCommandTypes};
+use rendering::resources::{RenderableState};
+use states::resources::{State, StateCommandTypes};
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct States {
     pub list: Vec<State>,
-    pub idle: Option<fn()->State>,
-    pub walk: Option<fn()->State>,
+    pub idle: Option<fn()->RenderableState>,
+    pub walk: Option<fn()->RenderableState>,
 }
 
 impl Component for States {
@@ -15,11 +16,11 @@ impl Component for States {
 
 impl States {
     pub fn new(
-        idle: Option<fn()->State>,
-        walk: Option<fn()->State>,
+        idle: Option<fn()->RenderableState>,
+        walk: Option<fn()->RenderableState>,
     ) -> States {
         States {
-            list: vec!(idle.unwrap()()),
+            list: vec!(idle.unwrap()().state),
             idle,
             walk,
         }
@@ -43,15 +44,6 @@ impl States {
             }
             None => true
         }
-    }
-
-    pub fn handle(&mut self, action: &StateActions) {
-        let state = match action {
-            StateActions::Idle => self.idle.expect("Idle doesn't exists.")(),
-            StateActions::Walk => self.walk.expect("Walk doesn't exists.")(),
-            _ => self.idle.expect("Idle doesn't exists.")(),
-        };
-        self.start(state);
     }
 
     pub fn start(&mut self, state: State) {

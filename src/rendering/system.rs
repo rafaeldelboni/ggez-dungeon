@@ -1,65 +1,16 @@
-use ggez::graphics::{draw_ex, Drawable, DrawMode, DrawParam, Mesh, Point2, Rect};
+use ggez::graphics::{Drawable, DrawMode, DrawParam, Mesh, Point2};
 use ggez::{Context, GameResult};
 use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
-use spritesheet_generator::spritesheet::Screen;
 
 use assets::Assets;
 use camera::Camera;
 use physics::component::{EcsRigidBody, ShapeCube};
 use physics::resources::{PhysicWorld};
 use rendering::component::{Renderable, Sprite};
-use rendering::resources::{RenderableClass};
+use rendering::resources::{draw_image, RenderableClass, RenderableState, RenderableType};
+use states::component::{States};
 
 const TARGET_FPS: f32 = 60.;
-
-fn generate_draw_param (
-    camera: &Camera,
-    frame: &Screen,
-    sprite: Sprite
-) -> DrawParam {
-    let cam_dest = camera.calculate_dest_point(
-        Point2::new(
-            sprite.position.x + sprite.offset.x,
-            sprite.position.y + sprite.offset.y
-        )
-    );
-    let cam_scale = camera.draw_scale();
-    let sprite_scale = Point2::new(
-        cam_scale.x * sprite.scale.x * sprite.direction.x,
-        cam_scale.y * sprite.scale.y,
-    );
-
-    DrawParam {
-        src: Rect {
-            x: frame.x as f32,
-            y: frame.y as f32,
-            w: frame.w as f32,
-            h: frame.h as f32,
-        },
-        dest: cam_dest,
-        scale: sprite_scale,
-        offset: Point2::new(0.5, 0.5),
-        shear: Point2::new(1./1e4, 1./1e4),
-        ..Default::default()
-    }
-}
-
-fn draw_image(
-    camera: &Camera,
-    context: &mut Context,
-    spritesheet: &Write<Assets>,
-    sprite: &Sprite,
-    id: &str
-) {
-    if let Some(frame_data) = &spritesheet.spritesheet_data.frames.get(id) {
-        let frame = frame_data.screen.clone();
-        draw_ex(
-            context,
-            &spritesheet.spritesheet_image,
-            generate_draw_param(&camera, &frame, *sprite)
-        ).expect("Unable do render image.");
-    }
-}
 
 pub struct RenderingSystem<'c> {
     ctx: &'c mut Context,
@@ -77,32 +28,43 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
         Read<'a, Camera>,
         WriteStorage<'a, Renderable>,
         ReadStorage<'a, Sprite>,
+        ReadStorage<'a, States>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (assets_sd, camera, mut renderables, sprites) = data;
+        let (assets_sd, camera, mut renderables, sprites, states) = data;
         let spritesheet = assets_sd.unwrap();
 
-        for (mut renderable, sprite) in (&mut renderables, &sprites).join() {
-            match renderable.class {
-                RenderableClass::Animation { id, frame, speed, length } => {
-                    let next_frame = (frame + (1. / TARGET_FPS) * speed) % length;
+        for (mut renderable, sprite, states) 
+            in (&mut renderables, &sprites, &states).join() {
+                match renderable.class.render_type {
+                    RenderableType::Animation => {
+                        let anim = renderable.class;
+                        let state_anim = RenderableState::current(states)
+                            .renderable;
 
-                    renderable.class = RenderableClass::Animation {
-                        id,
-                        frame: next_frame,
-                        speed,
-                        length
-                    };
+                        let next_frame = if anim.id == state_anim.id {
+                            (renderable.class.frame + (1. / TARGET_FPS) * anim.speed) % anim.length
+                        } else {
+                            0.0
+                        };
 
-                    let id = format!("{}_{:02}", id, frame as usize);
-                    draw_image(&*camera, self.ctx, &spritesheet, sprite, &id);
-                },
-                RenderableClass::Image { id } => {
-                    draw_image(&*camera, self.ctx, &spritesheet, sprite, id);
-                },
+                        renderable.class = RenderableClass {
+                            render_type: RenderableType::Animation,
+                            id: state_anim.id,
+                            frame: next_frame,
+                            speed: state_anim.speed,
+                            length: state_anim.length
+                        };
+
+                        let sheet_id = format!("{}_{:02}", state_anim.id, next_frame as usize);
+                        draw_image(&*camera, self.ctx, &spritesheet, sprite, &sheet_id );
+                    },
+                    RenderableType::Image => {
+                        draw_image(&*camera, self.ctx, &spritesheet, sprite, renderable.class.id);
+                    },
+                }
             }
-        }
     }
 }
 

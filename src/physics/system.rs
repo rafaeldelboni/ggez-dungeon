@@ -3,6 +3,7 @@ use specs::{Join, Read, ReadStorage, System, Write, WriteStorage};
 use physics::component::{EcsRigidBody, Velocity};
 use physics::resources::{UpdateTime, PhysicWorld};
 use rendering::component::{Sprite};
+use rendering::resources::{RenderableState};
 use states::component::{States};
 use states::resources::{StateActions};
 
@@ -28,9 +29,15 @@ impl<'a> System<'a> for MoveSystem {
                     .vector;
                 sprite.pull(updated_position);
                 if vel.is_stoping() || vel.is_moving() {
-                    states.handle(&StateActions::Walk);
+                    let new_state = RenderableState::handle(
+                        &states, &StateActions::Walk
+                    ).state;
+                    states.start(new_state);
                 } else {
-                    states.handle(&StateActions::Idle);
+                    let new_state = RenderableState::handle(
+                        &states, &StateActions::Idle
+                    ).state;
+                    states.start(new_state);
                 }
             }
         );
