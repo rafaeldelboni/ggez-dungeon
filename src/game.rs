@@ -73,7 +73,7 @@ impl<'a, 'b> Game<'a, 'b> {
             )
         );
 
-        //spawn_enemy(&mut world, 200., 200.);
+        spawn_enemy(&mut world, 200., 200.);
         spawn_player(&mut world, 100., 100.);
 
         Ok(Game {
