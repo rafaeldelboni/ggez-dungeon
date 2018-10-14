@@ -1,3 +1,5 @@
+use rendering::resources::{RenderableClass};
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum StateActions {
     Idle,
@@ -35,4 +37,10 @@ impl State {
             interruptible
         }
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct StateRenderable {
+    pub state: State,
+    pub renderable: RenderableClass
 }

@@ -10,6 +10,7 @@ use player::resources::{player_idle, player_walk};
 use rendering::component::{Renderable, Sprite};
 use rendering::resources::{RenderableClass};
 use states::component::{States};
+use states::resources::{StateActions, StateRenderable};
 
 pub fn spawn_player(world: &mut World, x: f32, y: f32) {
     let shape_cube = ShapeCube(Cuboid::new(Vector2::new(5., 5.)));
@@ -26,7 +27,13 @@ pub fn spawn_player(world: &mut World, x: f32, y: f32) {
             offset: Vector2::new(0., 10.)
         })
         .with(Velocity::new(Vector2::new(0., 0.)))
-        .with(States::new(Some(player_idle), Some(player_walk)))
+        .with(States::new(
+            &StateActions::Idle,
+            hash!{
+                StateActions::Idle => player_idle as fn()->StateRenderable,
+                StateActions::Walk => player_walk as fn()->StateRenderable
+            })
+        )
         .with(Renderable {
             layer: 0,
             class: RenderableClass::new_animation ("warrior_idle", 10., 10.)

@@ -1,13 +1,12 @@
+use std::collections::{HashMap};
 use specs::{Component, VecStorage};
 
-use rendering::resources::{RenderableState};
-use states::resources::{State, StateCommandTypes};
+use states::resources::{State, StateActions, StateCommandTypes, StateRenderable};
 
 #[derive(Clone, Debug, Default)]
 pub struct States {
-    pub list: Vec<State>,
-    pub idle: Option<fn()->RenderableState>,
-    pub walk: Option<fn()->RenderableState>,
+    pub active: Vec<State>,
+    pub actions: HashMap<StateActions, fn()->StateRenderable>,
 }
 
 impl Component for States {
@@ -16,25 +15,48 @@ impl Component for States {
 
 impl States {
     pub fn new(
-        idle: Option<fn()->RenderableState>,
-        walk: Option<fn()->RenderableState>,
+        active: &StateActions,
+        actions: HashMap<StateActions, fn()->StateRenderable>,
     ) -> States {
+        let active_state = actions
+            .get(active)
+            .expect("Active not found in actions argument.")
+            ();
         States {
-            list: vec!(idle.unwrap()().state),
-            idle,
-            walk,
+            active: vec!{active_state.state},
+            actions,
         }
     }
 
+    pub fn get_action(&self, action: &StateActions) -> StateRenderable {
+        self.actions
+            .get(action)
+            .expect("Action not found in actions list.")
+            ()
+    }
+
+    pub fn current_action(&self) -> StateRenderable {
+        let current = self.current().expect("No current state found.");
+        self.actions
+            .get(&current.action)
+            .expect("Current action not found in actions list.")
+            ()
+    }
+
+    pub fn start_action(&mut self, action: &StateActions) {
+        let state_renderer = self.get_action(action);
+        self.start(state_renderer.state)
+    }
+
     pub fn current(&self) -> Option<&State> {
-        self.list.last()
+        self.active.last()
     }
 
     pub fn current_mut(&mut self) -> Option<&mut State> {
-        self.list.last_mut()
+        self.active.last_mut()
     }
 
-    fn current_is_finished(&self) -> bool {
+    pub fn current_is_finished(&self) -> bool {
         match self.current() {
             Some (current) => {
                 match current.duration_secs {
@@ -65,11 +87,11 @@ impl States {
 
             match (&state.onstart_cmd_type, current_interruptible) {
                 (StateCommandTypes::Push, false) => { 
-                    self.list.push(state);
+                    self.active.push(state);
                 },
                 (StateCommandTypes::Replace, false) => {
-                    self.list.pop();
-                    self.list.push(state);
+                    self.active.pop();
+                    self.active.push(state);
                 },
                 _ => {},
             }
@@ -77,20 +99,6 @@ impl States {
     }
 
     pub fn stop(&mut self) {
-        self.list.pop();
-    }
-
-    pub fn update(&mut self, delta_seconds: f32) {
-        if !self.list.is_empty() {
-            if self.current_is_finished() {
-                self.stop()
-            }
-
-            if let Some (current) = self.current_mut() { 
-                if current.duration_secs.is_some() {
-                    current.executed_secs += delta_seconds;
-                }
-            }
-        }
+        self.active.pop();
     }
 }

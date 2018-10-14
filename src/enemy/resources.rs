@@ -1,8 +1,8 @@
-use states::resources::{State, StateActions, StateCommandTypes};
-use rendering::resources::{RenderableClass, RenderableState};
+use states::resources::{State, StateActions, StateCommandTypes, StateRenderable};
+use rendering::resources::{RenderableClass};
 
-pub fn enemy_idle() -> RenderableState {
-    RenderableState {
+pub fn enemy_idle() -> StateRenderable {
+    StateRenderable {
        state: State::new(
            StateActions::Idle, None, StateCommandTypes::Replace, false
        ),
@@ -10,8 +10,8 @@ pub fn enemy_idle() -> RenderableState {
     }
 }
 
-pub fn enemy_walk() -> RenderableState {
-    RenderableState {
+pub fn enemy_walk() -> StateRenderable {
+    StateRenderable {
         state: State::new(
             StateActions::Walk, None, StateCommandTypes::Push, false
         ),

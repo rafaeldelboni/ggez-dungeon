@@ -13,7 +13,17 @@ impl<'a> System<'a> for StatesSystem {
 
     fn run(&mut self, (delta, mut states): Self::SystemData) {
         (&mut states).join().for_each(|state| {
-            state.update(delta.seconds);
+            if !state.active.is_empty() {
+                if state.current_is_finished() {
+                    state.stop()
+                }
+
+                if let Some (current) = state.current_mut() { 
+                    if current.duration_secs.is_some() {
+                        current.executed_secs += delta.seconds;
+                    }
+                }
+            }
         })
     }
 }

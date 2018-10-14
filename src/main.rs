@@ -1,3 +1,4 @@
+
 extern crate ggez;
 extern crate ggez_goodies;
 extern crate hibitset;
@@ -9,11 +10,12 @@ extern crate serde_json;
 extern crate specs;
 extern crate spritesheet_generator;
 
+#[macro_use] mod utils;
+mod assets;
+mod camera;
+mod enemy;
 mod game;
 mod input;
-mod enemy;
-mod camera;
-mod assets;
 mod player;
 mod physics;
 mod rendering;

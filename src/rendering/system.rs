@@ -7,7 +7,7 @@ use camera::Camera;
 use physics::component::{EcsRigidBody, ShapeCube};
 use physics::resources::{PhysicWorld};
 use rendering::component::{Renderable, Sprite};
-use rendering::resources::{draw_image, RenderableClass, RenderableState, RenderableType};
+use rendering::resources::{draw_image, RenderableClass, RenderableType};
 use states::component::{States};
 
 const TARGET_FPS: f32 = 60.;
@@ -37,14 +37,14 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
 
         for (mut renderable, sprite, states) 
             in (&mut renderables, &sprites, &states).join() {
-                match renderable.class.render_type {
+                let anim = renderable.class;
+                match anim.render_type {
                     RenderableType::Animation => {
-                        let anim = renderable.class;
-                        let state_anim = RenderableState::current(states)
-                            .renderable;
+                        let state_anim = states.current_action().renderable;
 
                         let next_frame = if anim.id == state_anim.id {
-                            (renderable.class.frame + (1. / TARGET_FPS) * anim.speed) % anim.length
+                            (anim.frame + (1. / TARGET_FPS) * anim.speed)
+                                % anim.length
                         } else {
                             0.0
                         };
@@ -57,11 +57,13 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                             length: state_anim.length
                         };
 
-                        let sheet_id = format!("{}_{:02}", state_anim.id, next_frame as usize);
-                        draw_image(&*camera, self.ctx, &spritesheet, sprite, &sheet_id );
+                        let sheet_id = format!(
+                            "{}_{:02}", state_anim.id, next_frame as usize
+                        );
+                        draw_image(&*camera, self.ctx, &spritesheet, sprite, &sheet_id);
                     },
                     RenderableType::Image => {
-                        draw_image(&*camera, self.ctx, &spritesheet, sprite, renderable.class.id);
+                        draw_image(&*camera, self.ctx, &spritesheet, sprite, anim.id);
                     },
                 }
             }
@@ -77,24 +79,25 @@ impl<'c> DebugRenderingSystem<'c> {
         DebugRenderingSystem { ctx }
     }
 
-    pub fn render(&mut self, points: &[Point2], cam_scale: Point2) -> GameResult<()> {
-        let mesh = Mesh::new_polygon(
-            self.ctx,
-            DrawMode::Line(1.),
-            points
-        ).expect("Error creating polygon.");
+    pub fn render(&mut self, points: &[Point2], cam_scale: Point2)
+        -> GameResult<()> {
+            let mesh = Mesh::new_polygon(
+                self.ctx,
+                DrawMode::Line(1.),
+                points
+            ).expect("Error creating polygon.");
 
-        mesh.draw_ex(
-            self.ctx,
-            DrawParam {
-                dest: Point2::origin(),
-                rotation: 0.0,
-                scale: cam_scale,
-                offset: Point2::new(0.5, 0.5),
-                ..Default::default()
-            },
-        )
-    }
+            mesh.draw_ex(
+                self.ctx,
+                DrawParam {
+                    dest: Point2::origin(),
+                    rotation: 0.0,
+                    scale: cam_scale,
+                    offset: Point2::new(0.5, 0.5),
+                    ..Default::default()
+                },
+                )
+        }
 }
 
 impl<'a, 'c> System<'a> for DebugRenderingSystem<'c> {

@@ -6,8 +6,6 @@ use specs::{Write};
 use assets::Assets;
 use camera::Camera;
 use rendering::component::{Sprite};
-use states::component::{States};
-use states::resources::{State, StateActions};
 
 #[derive(Debug, Copy, Clone)]
 pub enum RenderableType {
@@ -36,30 +34,6 @@ impl RenderableClass {
             frame: 0.,
             speed,
             length
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct RenderableState { 
-    pub state: State,
-    pub renderable: RenderableClass
-}
-
-impl RenderableState {
-    pub fn current(
-        states: &States
-    ) -> RenderableState {
-        let current = states.current().expect("No current state found.");
-        Self::handle(states, &current.action)
-    }
-    pub fn handle(
-        states: &States, action: &StateActions
-    ) -> RenderableState {
-        match action {
-            StateActions::Idle => states.idle.expect("Idle doesn't exists.")(),
-            StateActions::Walk => states.walk.expect("Walk doesn't exists.")(),
-            _ => states.idle.expect("Idle doesn't exists.")(),
         }
     }
 }
